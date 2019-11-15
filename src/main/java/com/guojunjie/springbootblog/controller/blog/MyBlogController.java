@@ -112,4 +112,14 @@ public class MyBlogController {
         }
         return ResultGenerator.genErrorResult("获取用户信息失败");
     }
+
+    @GetMapping("/visits")
+    @ResponseBody
+    public Result getVisits(){
+        int totalVisits = blogService.getTotalVisits();
+        if(totalVisits >= 0){
+            return ResultGenerator.genSuccessResult(totalVisits);
+        }
+        return ResultGenerator.genErrorResult("获取总访问人数失败");
+    }
 }

@@ -31,6 +31,8 @@ public interface BlogMapper {
 
     Blog selectPostByTag(int blogId);
 
+    int getTotalVisits();
+
     //Generator
     int deleteByPrimaryKey(Integer blogId);
 

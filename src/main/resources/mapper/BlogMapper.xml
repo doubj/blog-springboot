@@ -103,6 +103,12 @@
     and blog_status = 1
   </select>
 
+  <select id="getTotalVisits" resultType="java.lang.Integer">
+    select
+    sum(blog_visits)
+    from tb_blog where blog_status = 1
+  </select>
+
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
     select 
     <include refid="Base_Column_List" />

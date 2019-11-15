@@ -366,4 +366,9 @@ public class BlogServiceImpl implements BlogService {
     public User getUser() {
         return userMapper.getUser();
     }
+
+    @Override
+    public int getTotalVisits() {
+        return blogMapper.getTotalVisits();
+    }
 }

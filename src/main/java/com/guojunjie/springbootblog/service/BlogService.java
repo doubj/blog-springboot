@@ -30,4 +30,5 @@ public interface BlogService {
     List<Blog> getPostByTagStatus(int tagId);
     List<FriendLink> getFriendLinks();
     User getUser();
+    int getTotalVisits();
 }

@@ -58,20 +58,20 @@
 <!--               enableUpdateByExample="false"-->
 <!--               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">-->
 <!--        </table>-->
-        <table tableName="tb_blog_category" domainObjectName="BlogCategory"
-               enableCountByExample="false"
-               enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
-        </table>
-        <table tableName="tb_blog_tag" domainObjectName="BlogTag"
-               enableCountByExample="false"
-               enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
-        </table>
-        <table tableName="tb_blog_tag_relation" domainObjectName="BlogTagRelation"
-               enableCountByExample="false"
-               enableUpdateByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
-        </table>
+<!--        <table tableName="tb_blog_category" domainObjectName="BlogCategory"-->
+<!--               enableCountByExample="false"-->
+<!--               enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">-->
+<!--        </table>-->
+<!--        <table tableName="tb_blog_tag" domainObjectName="BlogTag"-->
+<!--               enableCountByExample="false"-->
+<!--               enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">-->
+<!--        </table>-->
+<!--        <table tableName="tb_blog_tag_relation" domainObjectName="BlogTagRelation"-->
+<!--               enableCountByExample="false"-->
+<!--               enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">-->
+<!--        </table>-->
     </context>
 </generatorConfiguration>
