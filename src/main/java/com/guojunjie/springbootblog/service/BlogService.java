@@ -4,10 +4,7 @@ import com.guojunjie.springbootblog.common.PageInfo;
 import com.guojunjie.springbootblog.controller.vo.BlogCategoryVo;
 import com.guojunjie.springbootblog.controller.vo.BlogDetailVo;
 import com.guojunjie.springbootblog.controller.vo.BlogTagVo;
-import com.guojunjie.springbootblog.entity.Blog;
-import com.guojunjie.springbootblog.entity.BlogCategory;
-import com.guojunjie.springbootblog.entity.FriendLink;
-import com.guojunjie.springbootblog.entity.User;
+import com.guojunjie.springbootblog.entity.*;
 
 import java.util.List;
 
@@ -29,6 +26,6 @@ public interface BlogService {
     List<BlogTagVo> getTags();
     List<Blog> getPostByTagStatus(int tagId);
     List<FriendLink> getFriendLinks();
-    User getUser();
+    UserExtra getUser();
     int getTotalVisits();
 }

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guojunjie.springbootblog.dao.UserExtraMapper">
+  <resultMap id="BaseResultMap" type="com.guojunjie.springbootblog.entity.UserExtra">
+    <result column="uid" jdbcType="INTEGER" property="uid" />
+    <result column="nick_name" jdbcType="VARCHAR" property="nickName" />
+    <result column="avatar" jdbcType="VARCHAR" property="avatar" />
+    <result column="introduce" jdbcType="VARCHAR" property="introduce" />
+  </resultMap>
+
+  <select id="findExtraById" resultMap="BaseResultMap">
+    select
+    nick_name,avatar,introduce
+    from `tb_user_extra`
+    where uid = #{blogId}
+  </select>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.guojunjie.springbootblog.entity.UserExtra">
+    update tb_user_extra
+    <set>
+      <if test="nickName != null">
+        nick_name = #{nickName,jdbcType=VARCHAR},
+      </if>
+      <if test="avatar != null">
+        avatar = #{avatar,jdbcType=VARCHAR},
+      </if>
+      <if test="introduce != null">
+        introduce = #{introduce,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where uid = #{uid,jdbcType=INTEGER}
+  </update>
+
+  <insert id="insert" parameterType="com.guojunjie.springbootblog.entity.UserExtra">
+    insert into tb_user_extra (uid, nick_name, avatar, 
+      introduce)
+    values (#{uid,jdbcType=INTEGER}, #{nickName,jdbcType=VARCHAR}, #{avatar,jdbcType=VARCHAR}, 
+      #{introduce,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.guojunjie.springbootblog.entity.UserExtra">
+    insert into tb_user_extra
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="uid != null">
+        uid,
+      </if>
+      <if test="nickName != null">
+        nick_name,
+      </if>
+      <if test="avatar != null">
+        avatar,
+      </if>
+      <if test="introduce != null">
+        introduce,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="uid != null">
+        #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="nickName != null">
+        #{nickName,jdbcType=VARCHAR},
+      </if>
+      <if test="avatar != null">
+        #{avatar,jdbcType=VARCHAR},
+      </if>
+      <if test="introduce != null">
+        #{introduce,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+</mapper>

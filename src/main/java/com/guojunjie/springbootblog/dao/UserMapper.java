@@ -11,7 +11,7 @@ public interface UserMapper {
 
     User getUser();
 
-    //generator
+    //Generator
     int deleteByPrimaryKey(Integer userId);
 
     int insert(User record);

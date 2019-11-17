@@ -31,6 +31,8 @@ public class BlogServiceImpl implements BlogService {
     FriendLinkMapper friendLinkMapper;
     @Autowired
     UserMapper userMapper;
+    @Autowired
+    UserExtraMapper userExtraMapper;
 
 
     @Override
@@ -363,8 +365,9 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public User getUser() {
-        return userMapper.getUser();
+    public UserExtra getUser() {
+        User user = userMapper.getUser();
+        return userExtraMapper.findExtraById(user.getUserId());
     }
 
     @Override

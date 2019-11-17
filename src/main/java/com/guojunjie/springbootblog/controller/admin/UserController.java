@@ -4,7 +4,9 @@ package com.guojunjie.springbootblog.controller.admin;
 import com.guojunjie.springbootblog.annotation.UserLoginToken;
 import com.guojunjie.springbootblog.common.Result;
 import com.guojunjie.springbootblog.common.ResultGenerator;
+import com.guojunjie.springbootblog.controller.vo.UserVo;
 import com.guojunjie.springbootblog.entity.User;
+import com.guojunjie.springbootblog.entity.UserExtra;
 import com.guojunjie.springbootblog.service.UserService;
 import com.guojunjie.springbootblog.util.JWTUtil;
 import org.springframework.web.bind.annotation.*;
@@ -34,9 +36,9 @@ public class UserController {
     @UserLoginToken
     @ResponseBody
     public Result getUser(@PathVariable int id){
-        User user = userService.findUserById(id);
-        if(user != null){
-            return ResultGenerator.genSuccessResult(user);
+        UserVo userVo = userService.findUserById(id);
+        if(userVo != null){
+            return ResultGenerator.genSuccessResult(userVo);
         }
         return ResultGenerator.genErrorResult("没有找到该用户");
     }
@@ -48,6 +50,17 @@ public class UserController {
         boolean res = userService.updateUser(user);
         if(res){
             return ResultGenerator.genSuccessResult(user);
+        }
+        return ResultGenerator.genErrorResult("修改信息失败");
+    }
+
+    @PutMapping("/user/extra")
+    @UserLoginToken
+    @ResponseBody
+    public Result updateUser(@RequestBody UserExtra userextra){
+        boolean res = userService.updateUserExtra(userextra);
+        if(res){
+            return ResultGenerator.genSuccessResult(userextra);
         }
         return ResultGenerator.genErrorResult("修改信息失败");
     }

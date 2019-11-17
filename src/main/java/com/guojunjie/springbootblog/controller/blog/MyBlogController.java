@@ -9,6 +9,7 @@ import com.guojunjie.springbootblog.controller.vo.BlogTagVo;
 import com.guojunjie.springbootblog.entity.Blog;
 import com.guojunjie.springbootblog.entity.FriendLink;
 import com.guojunjie.springbootblog.entity.User;
+import com.guojunjie.springbootblog.entity.UserExtra;
 import com.guojunjie.springbootblog.service.BlogService;
 import org.springframework.web.bind.annotation.*;
 
@@ -106,9 +107,9 @@ public class MyBlogController {
     @GetMapping("/user")
     @ResponseBody
     public Result getUser(){
-        User user = blogService.getUser();
-        if(user != null){
-            return ResultGenerator.genSuccessResult(user);
+        UserExtra userExtra = blogService.getUser();
+        if(userExtra != null){
+            return ResultGenerator.genSuccessResult(userExtra);
         }
         return ResultGenerator.genErrorResult("获取用户信息失败");
     }

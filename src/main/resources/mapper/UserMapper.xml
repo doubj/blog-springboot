@@ -5,12 +5,9 @@
     <id column="user_id" jdbcType="INTEGER" property="userId" />
     <result column="user_name" jdbcType="VARCHAR" property="userName" />
     <result column="password" jdbcType="VARCHAR" property="password" />
-    <result column="nick_name" jdbcType="VARCHAR" property="nickName" />
-    <result column="avatar" jdbcType="VARCHAR" property="avatar" />
-    <result column="introduce" jdbcType="VARCHAR" property="introduce" />
   </resultMap>
   <sql id="Base_Column_List">
-    user_id, user_name, password, nick_name, avatar, introduce
+    user_id, user_name, password
   </sql>
 
   <select id="selectUserByUsernameAndPassword" resultMap="BaseResultMap">
@@ -38,11 +35,9 @@
     where user_id = #{userId,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.guojunjie.springbootblog.entity.User">
-    insert into tb_user (user_id, user_name, password, 
-      nick_name, avatar, introduce
+    insert into tb_user (user_id, user_name, password
       )
-    values (#{userId,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
-      #{nickName,jdbcType=VARCHAR}, #{avatar,jdbcType=VARCHAR}, #{introduce,jdbcType=VARCHAR}
+    values (#{userId,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.guojunjie.springbootblog.entity.User">
@@ -57,15 +52,6 @@
       <if test="password != null">
         password,
       </if>
-      <if test="nickName != null">
-        nick_name,
-      </if>
-      <if test="avatar != null">
-        avatar,
-      </if>
-      <if test="introduce != null">
-        introduce,
-      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="userId != null">
@@ -76,15 +62,6 @@
       </if>
       <if test="password != null">
         #{password,jdbcType=VARCHAR},
-      </if>
-      <if test="nickName != null">
-        #{nickName,jdbcType=VARCHAR},
-      </if>
-      <if test="avatar != null">
-        #{avatar,jdbcType=VARCHAR},
-      </if>
-      <if test="introduce != null">
-        #{introduce,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -97,25 +74,13 @@
       <if test="password != null">
         password = #{password,jdbcType=VARCHAR},
       </if>
-      <if test="nickName != null">
-        nick_name = #{nickName,jdbcType=VARCHAR},
-      </if>
-      <if test="avatar != null">
-        avatar = #{avatar,jdbcType=VARCHAR},
-      </if>
-      <if test="introduce != null">
-        introduce = #{introduce,jdbcType=VARCHAR},
-      </if>
     </set>
     where user_id = #{userId,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.guojunjie.springbootblog.entity.User">
     update tb_user
     set user_name = #{userName,jdbcType=VARCHAR},
-      password = #{password,jdbcType=VARCHAR},
-      nick_name = #{nickName,jdbcType=VARCHAR},
-      avatar = #{avatar,jdbcType=VARCHAR},
-      introduce = #{introduce,jdbcType=VARCHAR}
+      password = #{password,jdbcType=VARCHAR}
     where user_id = #{userId,jdbcType=INTEGER}
   </update>
 </mapper>
