@@ -19,7 +19,7 @@ public interface BlogMapper {
 
 
 
-    List<Blog> selectPostByCategoryStatus(int categoryId);
+    List<Blog> selectPostByCategoryStatus(String categoryName);
 
     List<Blog> selectPostByStatus();
 

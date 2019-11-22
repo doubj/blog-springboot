@@ -8,10 +8,14 @@ import com.guojunjie.springbootblog.controller.vo.UserVo;
 import com.guojunjie.springbootblog.entity.User;
 import com.guojunjie.springbootblog.entity.UserExtra;
 import com.guojunjie.springbootblog.service.UserService;
-import com.guojunjie.springbootblog.util.JWTUtil;
+import com.guojunjie.springbootblog.util.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 @RestController
 @RequestMapping("/admin")
@@ -22,9 +26,9 @@ public class UserController {
 
     @PostMapping("/login")
     @ResponseBody
-    public Result Login(@RequestBody User user){
-        User resUser = userService.findUserByUsernameAndPassword(user.getUserName(),user.getPassword());
-        if(resUser != null){
+    public Result Login(@RequestBody User user) {
+        User resUser = userService.findUserByUsernameAndPassword(user.getUserName(), user.getPassword());
+        if (resUser != null) {
             String token = JWTUtil.createToken(resUser);
             return ResultGenerator.genSuccessResult(token);
         }
@@ -35,9 +39,9 @@ public class UserController {
     @GetMapping("/user/{id}")
     @UserLoginToken
     @ResponseBody
-    public Result getUser(@PathVariable int id){
+    public Result getUser(@PathVariable int id) {
         UserVo userVo = userService.findUserById(id);
-        if(userVo != null){
+        if (userVo != null) {
             return ResultGenerator.genSuccessResult(userVo);
         }
         return ResultGenerator.genErrorResult("没有找到该用户");
@@ -46,9 +50,9 @@ public class UserController {
     @PutMapping("/user")
     @UserLoginToken
     @ResponseBody
-    public Result updateUser(@RequestBody User user){
+    public Result updateUser(@RequestBody User user) {
         boolean res = userService.updateUser(user);
-        if(res){
+        if (res) {
             return ResultGenerator.genSuccessResult(user);
         }
         return ResultGenerator.genErrorResult("修改信息失败");
@@ -57,10 +61,25 @@ public class UserController {
     @PutMapping("/user/extra")
     @UserLoginToken
     @ResponseBody
-    public Result updateUser(@RequestBody UserExtra userextra){
-        boolean res = userService.updateUserExtra(userextra);
-        if(res){
-            return ResultGenerator.genSuccessResult(userextra);
+    public Result updateUserExtra(@RequestParam(value = "file", required = false) MultipartFile file,
+                                  @RequestParam(value = "userId", required = false) Integer userId,
+                                  @RequestParam(value = "nickName", required = false) String nickName,
+                                  @RequestParam(value = "introduce", required = false) String introduce) throws IOException {
+
+
+        //上传File到华为云OBS并返回url
+        String fileName = RandomUtil.getRandomFileName();
+        String url = UploadUtil.uploadFile(file, "myavatar/avatar");
+
+        UserExtra userExtra = new UserExtra();
+        userExtra.setAvatar(url);
+        userExtra.setUid(userId);
+        userExtra.setIntroduce(introduce);
+        userExtra.setNickName(nickName);
+
+        boolean res = userService.updateUserExtra(userExtra);
+        if (res) {
+            return ResultGenerator.genSuccessResult(userExtra);
         }
         return ResultGenerator.genErrorResult("修改信息失败");
     }

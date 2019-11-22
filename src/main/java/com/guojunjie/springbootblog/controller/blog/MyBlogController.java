@@ -64,10 +64,10 @@ public class MyBlogController {
         return ResultGenerator.genErrorResult("获取博客信息失败");
     }
 
-    @GetMapping("/categories/{categoryId}")
+    @GetMapping("/categories/{categoryName}")
     @ResponseBody
-    public Result getBlogByCategory(@PathVariable int categoryId){
-        List<Blog> blogList = blogService.getPostByCategoryStatus(categoryId);
+    public Result getBlogByCategory(@PathVariable String categoryName){
+        List<Blog> blogList = blogService.getPostByCategoryStatus(categoryName);
         if(blogList != null){
             return ResultGenerator.genSuccessResult(blogList);
         }
@@ -84,10 +84,10 @@ public class MyBlogController {
         return ResultGenerator.genErrorResult("获取标签信息失败");
     }
 
-    @GetMapping("/tags/{tagId}")
+    @GetMapping("/tags/{tagName}")
     @ResponseBody
-    public Result getBlogByTag(@PathVariable int tagId){
-        List<Blog> blogList = blogService.getPostByTagStatus(tagId);
+    public Result getBlogByTag(@PathVariable String tagName){
+        List<Blog> blogList = blogService.getPostByTagStatus(tagName);
         if(blogList != null){
             return ResultGenerator.genSuccessResult(blogList);
         }

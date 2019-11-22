@@ -319,8 +319,8 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public List<Blog> getPostByCategoryStatus(int categoryId) {
-        return blogMapper.selectPostByCategoryStatus(categoryId);
+    public List<Blog> getPostByCategoryStatus(String categoryName) {
+        return blogMapper.selectPostByCategoryStatus(categoryName);
     }
 
     @Override
@@ -344,8 +344,9 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public List<Blog> getPostByTagStatus(int tagId) {
-        List<BlogTagRelation> blogTagRelations = blogTagRelationMapper.selectByTagId(tagId);
+    public List<Blog> getPostByTagStatus(String tagName) {
+        BlogTag blogTag = blogTagMapper.selectByTagName(tagName);
+        List<BlogTagRelation> blogTagRelations = blogTagRelationMapper.selectByTagId(blogTag.getTagId());
         List<Blog> blogList = new ArrayList<>();
         for(BlogTagRelation blogTagRelation : blogTagRelations){
             Blog blog = blogMapper.selectPostByTag(blogTagRelation.getBlogId());

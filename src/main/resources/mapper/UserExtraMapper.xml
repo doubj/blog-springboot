@@ -12,7 +12,7 @@
     select
     nick_name,avatar,introduce
     from `tb_user_extra`
-    where uid = #{blogId}
+    where uid = #{userId}
   </select>
 
   <update id="updateByPrimaryKeySelective" parameterType="com.guojunjie.springbootblog.entity.UserExtra">

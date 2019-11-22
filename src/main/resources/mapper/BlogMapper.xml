@@ -54,7 +54,7 @@
     <include refid="Blob_Column_List" />
     from tb_blog
     where blog_status = 1
-    and blog_category_id = #{categoryId}
+    and blog_category_name = #{categoryName}
   </select>
 
   <select id="selectPostByStatus" resultMap="ResultMapWithBLOBs">

@@ -19,7 +19,7 @@
   </select>
 
   <select id="getUser" resultMap="BaseResultMap">
-    select nick_name,avatar,introduce
+    select user_id
     from tb_user
     limit 0,1
   </select>

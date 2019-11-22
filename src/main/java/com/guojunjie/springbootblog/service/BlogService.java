@@ -22,9 +22,9 @@ public interface BlogService {
     BlogDetailVo selectPostDetailById(int blogId);
     List<BlogCategoryVo> getCategories();
     List<Blog> getPublishPostsList();
-    List<Blog> getPostByCategoryStatus(int categoryId);
+    List<Blog> getPostByCategoryStatus(String categoryName);
     List<BlogTagVo> getTags();
-    List<Blog> getPostByTagStatus(int tagId);
+    List<Blog> getPostByTagStatus(String tagName);
     List<FriendLink> getFriendLinks();
     UserExtra getUser();
     int getTotalVisits();

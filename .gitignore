@@ -29,3 +29,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+###  忽略华为云服务 ###
+/src/main/java/com/guojunjie/springbootblog/util/HuaWeiUploadUtil
