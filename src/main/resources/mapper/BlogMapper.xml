@@ -12,42 +12,55 @@
     <result column="blog_visits" jdbcType="BIGINT" property="blogVisits" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="blog_summary" jdbcType="VARCHAR" property="blogSummary"/>
+    <result column="is_deleted" jdbcType="TINYINT" property="isDeleted"/>
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.guojunjie.springbootblog.entity.Blog">
     <result column="blog_content" jdbcType="LONGVARCHAR" property="blogContent" />
   </resultMap>
   <sql id="Base_Column_List">
     blog_id, blog_title, blog_cover_image, blog_category_id, blog_category_name, blog_tags, 
-    blog_status, blog_visits, create_time, update_time
+    blog_status, blog_visits, create_time, update_time, blog_summary
   </sql>
   <sql id="Blob_Column_List">
     blog_content
   </sql>
 
-  <select id="selectPostsList" resultMap="ResultMapWithBLOBs" >
-    select blog_id, blog_title, blog_cover_image, blog_category_id, blog_category_name, blog_tags,
-    blog_status, blog_visits,create_time,update_time
-    from tb_blog
+  <select id="getBlogListWithStatus" parameterType="boolean" resultMap="ResultMapWithBLOBs" >
+    select
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from tb_blog where is_deleted = 0
+    <if test="isPublished">
+      and blog_status = 1
+    </if>
   </select>
 
-  <select id="checkCategoryBeUsed" resultType="int">
+  <select id="getBlogCountByCategoryIdAndStatus" parameterType="map" resultType="int">
     select count(0)
     from tb_blog
-    where blog_category_id = #{BlogCategoryId}
+    where blog_category_id = #{blogCategoryId}
+    and is_deleted = 0
+    <if test="isPublished">
+      and blog_status = 1
+    </if>
   </select>
 
   <update id="setStatus" parameterType="map">
     update tb_blog
     set blog_status = #{status} where blog_id = #{blogId}
+    and is_deleted = 0
   </update>
 
   <select id="getTotalCount" resultType="java.lang.Integer">
     select count(0)
     from tb_blog
     where blog_status = 1
+    and is_deleted = 0
   </select>
 
-  <select id="selectPostByCategoryStatus" resultMap="ResultMapWithBLOBs">
+  <select id="getBlogByCategoryAndStatus" resultMap="ResultMapWithBLOBs">
     select
     <include refid="Base_Column_List" />
     ,
@@ -55,45 +68,42 @@
     from tb_blog
     where blog_status = 1
     and blog_category_name = #{categoryName}
+    and is_deleted = 0
   </select>
 
-  <select id="selectPostByStatus" resultMap="ResultMapWithBLOBs">
+  <select id="getBlogByPage" resultMap="ResultMapWithBLOBs">
     select
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
     from tb_blog
     where blog_status = 1
-  </select>
-
-  <select id="selectPostByPage" resultMap="ResultMapWithBLOBs">
-    select
-    <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
-    from tb_blog
-    where blog_status = 1
+    and is_deleted = 0
     order by create_time desc
     limit #{start} , #{limit}
   </select>
 
-  <select id="selectPreviousBlog" resultMap="BaseResultMap">
+  <select id="getPreviousBlog" resultMap="BaseResultMap">
     select
-    blog_id, blog_title
+    <include refid="Base_Column_List" />
     from tb_blog
     where blog_id =
-    (select blog_id from tb_blog where blog_id &lt; #{blogId} order by blog_id desc limit 1)
+    (select blog_id from tb_blog where blog_id &lt; #{blogId}
+    and is_deleted = 0
+    order by blog_id desc limit 1)
   </select>
 
-  <select id="selectNextBlog" resultMap="BaseResultMap">
+  <select id="getNextBlog" resultMap="BaseResultMap">
     select
-    blog_id, blog_title
+    <include refid="Base_Column_List" />
     from tb_blog
     where blog_id =
-    (select blog_id from tb_blog where blog_id &gt; #{blogId} order by blog_id limit 1)
+    (select blog_id from tb_blog where blog_id &gt; #{blogId}
+     and is_deleted = 0
+     order by blog_id limit 1)
   </select>
 
-  <select id="selectPostByTag" resultMap="ResultMapWithBLOBs">
+  <select id="getBlogByTag" resultMap="ResultMapWithBLOBs">
     select
     <include refid="Base_Column_List" />
     ,
@@ -101,37 +111,32 @@
     from tb_blog
     where blog_id = #{blogId}
     and blog_status = 1
+    and is_deleted = 0
   </select>
 
   <select id="getTotalVisits" resultType="java.lang.Integer">
     select
     sum(blog_visits)
     from tb_blog where blog_status = 1
+    and is_deleted = 0
   </select>
 
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+  <select id="getBlogById" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
     select 
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
     from tb_blog
     where blog_id = #{blogId,jdbcType=INTEGER}
+    and is_deleted = 0
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from tb_blog
+  <update id="deleteBlogById" parameterType="java.lang.Integer">
+
+    update tb_blog
+    set is_deleted = 1
     where blog_id = #{blogId,jdbcType=INTEGER}
-  </delete>
-  <insert id="insert" parameterType="com.guojunjie.springbootblog.entity.Blog">
-    insert into tb_blog (blog_id, blog_title, blog_cover_image, 
-      blog_category_id, blog_category_name, blog_tags, 
-      blog_status, blog_visits, create_time, 
-      update_time, blog_content)
-    values (#{blogId,jdbcType=INTEGER}, #{blogTitle,jdbcType=VARCHAR}, #{blogCoverImage,jdbcType=VARCHAR}, 
-      #{blogCategoryId,jdbcType=INTEGER}, #{blogCategoryName,jdbcType=VARCHAR}, #{blogTags,jdbcType=VARCHAR}, 
-      #{blogStatus,jdbcType=TINYINT}, #{blogVisits,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{updateTime,jdbcType=TIMESTAMP}, #{blogContent,jdbcType=LONGVARCHAR})
-  </insert>
-  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="blogId" keyColumn="blog_id" parameterType="com.guojunjie.springbootblog.entity.Blog">
+  </update>
+  <insert id="addBlog" useGeneratedKeys="true" keyProperty="blogId" keyColumn="blog_id" parameterType="com.guojunjie.springbootblog.entity.Blog">
     insert into tb_blog
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="blogId != null">
@@ -151,6 +156,9 @@
       </if>
       <if test="blogTags != null">
         blog_tags,
+      </if>
+      <if test="blogSummary != null">
+        blog_summary,
       </if>
       <if test="blogStatus != null">
         blog_status,
@@ -187,6 +195,9 @@
       <if test="blogTags != null">
         #{blogTags,jdbcType=VARCHAR},
       </if>
+      <if test="blogSummary != null">
+        #{blogSummary,jdbcType=VARCHAR},
+      </if>
       <if test="blogStatus != null">
         #{blogStatus,jdbcType=TINYINT},
       </if>
@@ -204,7 +215,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.guojunjie.springbootblog.entity.Blog">
+  <update id="updateBlog" parameterType="com.guojunjie.springbootblog.entity.Blog">
     update tb_blog
     <set>
       <if test="blogTitle != null">
@@ -221,6 +232,9 @@
       </if>
       <if test="blogTags != null">
         blog_tags = #{blogTags,jdbcType=VARCHAR},
+      </if>
+      <if test="blogSummary != null">
+        blog_summary = #{blogSummary,jdbcType=VARCHAR},
       </if>
       <if test="blogStatus != null">
         blog_status = #{blogStatus,jdbcType=TINYINT},
@@ -240,31 +254,12 @@
     </set>
     where blog_id = #{blogId,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.guojunjie.springbootblog.entity.Blog">
-    update tb_blog
-    set blog_title = #{blogTitle,jdbcType=VARCHAR},
-      blog_cover_image = #{blogCoverImage,jdbcType=VARCHAR},
-      blog_category_id = #{blogCategoryId,jdbcType=INTEGER},
-      blog_category_name = #{blogCategoryName,jdbcType=VARCHAR},
-      blog_tags = #{blogTags,jdbcType=VARCHAR},
-      blog_status = #{blogStatus,jdbcType=TINYINT},
-      blog_visits = #{blogVisits,jdbcType=BIGINT},
-      create_time = #{createTime,jdbcType=TIMESTAMP},
-      update_time = #{updateTime,jdbcType=TIMESTAMP},
-      blog_content = #{blogContent,jdbcType=LONGVARCHAR}
-    where blog_id = #{blogId,jdbcType=INTEGER}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.guojunjie.springbootblog.entity.Blog">
-    update tb_blog
-    set blog_title = #{blogTitle,jdbcType=VARCHAR},
-      blog_cover_image = #{blogCoverImage,jdbcType=VARCHAR},
-      blog_category_id = #{blogCategoryId,jdbcType=INTEGER},
-      blog_category_name = #{blogCategoryName,jdbcType=VARCHAR},
-      blog_tags = #{blogTags,jdbcType=VARCHAR},
-      blog_status = #{blogStatus,jdbcType=TINYINT},
-      blog_visits = #{blogVisits,jdbcType=BIGINT},
-      create_time = #{createTime,jdbcType=TIMESTAMP},
-      update_time = #{updateTime,jdbcType=TIMESTAMP}
-    where blog_id = #{blogId,jdbcType=INTEGER}
-  </update>
+  <select id="getDrafts" resultMap="ResultMapWithBLOBs" >
+    select
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from tb_blog where is_deleted = 0
+    and blog_status = 0
+  </select>
 </mapper>

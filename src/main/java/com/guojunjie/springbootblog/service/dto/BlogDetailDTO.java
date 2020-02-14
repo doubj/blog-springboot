@@ -1,21 +1,21 @@
-package com.guojunjie.springbootblog.entity;
+package com.guojunjie.springbootblog.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.guojunjie.springbootblog.entity.Blog;
 import lombok.Data;
 import lombok.ToString;
 
 import java.util.Date;
 
 /**
- * @author guojunjie
+ * @Date： 2020/2/4 14:21
+ * @author： guojunjie
+ * TODO 博客页面的blog详细数据
  */
-@JsonSerialize
+
 @Data
 @ToString
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class Blog {
+public class BlogDetailDTO {
     private Integer blogId;
 
     private String blogTitle;
@@ -26,11 +26,7 @@ public class Blog {
 
     private String blogCategoryName;
 
-    private String blogSummary;
-
     private String blogTags;
-
-    private Integer isDeleted;
 
     private Byte blogStatus;
 
@@ -41,6 +37,10 @@ public class Blog {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date updateTime;
+
+    private BlogCardDTO previousBlog;
+
+    private BlogCardDTO nextBlog;
 
     private String blogContent;
 }

@@ -1,27 +1,44 @@
 package com.guojunjie.springbootblog.dao;
 
+import com.guojunjie.springbootblog.entity.Blog;
 import com.guojunjie.springbootblog.entity.BlogTagRelation;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * @author guojunjie
+ */
 @Component
 public interface BlogTagRelationMapper {
 
-    List<BlogTagRelation> selectByTagId(int tagId);
+    /**
+     * 通过标签Id获取所有博客标签关系
+     * @param tagId 标签表的主键，在关系表中是外检
+     * @return 返回博客标签关系对象
+     */
+    List<BlogTagRelation> getBlogTagRelationByTagId(int tagId);
 
-    int selectCountByTagId(int tagId);
+    /**
+     * 通过标签Id标签对应的数量，如果是前台查询，会区分是否出版
+     * @param tagId 标签表的主键，在关系表中是外检
+     * @param drafts 如果是前台查询，会先查有没有未出版的博客，剔除出版博客的标签关系
+     * @return 返回对应的数量
+     */
+    int getBlogTagRelationCountByTagId(@Param("tagId") int tagId,@Param("drafts") List<Blog> drafts);
 
-    //Generator
-    int deleteByPrimaryKey(Integer relationId);
+    /**
+     * 通过Id,删除记录
+     * @param relationId 博客标签关系表的主键
+     * @return 返回影响的行数
+     */
+    int deleteBlogTagRelationById(Integer relationId);
 
-    int insert(BlogTagRelation record);
-
-    int insertSelective(BlogTagRelation record);
-
-    BlogTagRelation selectByPrimaryKey(Integer relationId);
-
-    int updateByPrimaryKeySelective(BlogTagRelation record);
-
-    int updateByPrimaryKey(BlogTagRelation record);
+    /**
+     * 添加博客标签关系记录
+     * @param record 关系表记录
+     * @return 返回影响的行数
+     */
+    int addBlogTagRelation(BlogTagRelation record);
 }

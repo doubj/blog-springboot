@@ -3,15 +3,22 @@ package com.guojunjie.springbootblog.dao;
 import com.guojunjie.springbootblog.entity.UserExtra;
 import org.springframework.stereotype.Component;
 
+/**
+ * @author guojunjie
+ */
 @Component
 public interface UserExtraMapper {
 
-    UserExtra findExtraById(int userId);
+    /**
+     * 通过ID查询用户信息
+     * @return
+     */
+    UserExtra getUserExtra();
 
-    int updateByPrimaryKeySelective(UserExtra record);
-
-    // Generator
-    int insert(UserExtra record);
-
-    int insertSelective(UserExtra record);
+    /**
+     * 更新用户信息
+     * @param record
+     * @return
+     */
+    int updateUserExtra(UserExtra record);
 }

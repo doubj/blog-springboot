@@ -10,37 +10,28 @@
     relation_id, blog_id, tag_id
   </sql>
 
-  <select id="selectByTagId" resultMap="BaseResultMap">
+  <select id="getBlogTagRelationByTagId" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from tb_blog_tag_relation
     where tag_id = #{tagId}
   </select>
 
-  <select id="selectCountByTagId" resultType="java.lang.Integer">
+  <select id="getBlogTagRelationCountByTagId" parameterType="map" resultType="java.lang.Integer">
     select count(0)
     from tb_blog_tag_relation
     where tag_id = #{tagId}
+    <if test=" null != drafts">
+        <foreach collection="drafts" item="draft" open="and blog_id in(" close=")" separator=",">
+        #{draft.blogId}
+        </foreach>
+    </if>
   </select>
-
-
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select 
-    <include refid="Base_Column_List" />
-    from tb_blog_tag_relation
-    where relation_id = #{relationId,jdbcType=INTEGER}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <delete id="deleteBlogTagRelationById" parameterType="java.lang.Integer">
     delete from tb_blog_tag_relation
     where relation_id = #{relationId,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.guojunjie.springbootblog.entity.BlogTagRelation">
-    insert into tb_blog_tag_relation (relation_id, blog_id, tag_id
-      )
-    values (#{relationId,jdbcType=INTEGER}, #{blogId,jdbcType=INTEGER}, #{tagId,jdbcType=INTEGER}
-      )
-  </insert>
-  <insert id="insertSelective" parameterType="com.guojunjie.springbootblog.entity.BlogTagRelation">
+  <insert id="addBlogTagRelation" parameterType="com.guojunjie.springbootblog.entity.BlogTagRelation">
     insert into tb_blog_tag_relation
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="relationId != null">
@@ -65,22 +56,4 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.guojunjie.springbootblog.entity.BlogTagRelation">
-    update tb_blog_tag_relation
-    <set>
-      <if test="blogId != null">
-        blog_id = #{blogId,jdbcType=INTEGER},
-      </if>
-      <if test="tagId != null">
-        tag_id = #{tagId,jdbcType=INTEGER},
-      </if>
-    </set>
-    where relation_id = #{relationId,jdbcType=INTEGER}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.guojunjie.springbootblog.entity.BlogTagRelation">
-    update tb_blog_tag_relation
-    set blog_id = #{blogId,jdbcType=INTEGER},
-      tag_id = #{tagId,jdbcType=INTEGER}
-    where relation_id = #{relationId,jdbcType=INTEGER}
-  </update>
 </mapper>

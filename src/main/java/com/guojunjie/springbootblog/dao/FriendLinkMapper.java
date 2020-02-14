@@ -5,21 +5,36 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * @author guojunjie
+ */
 @Component
 public interface FriendLinkMapper {
 
-    List<FriendLink> selectAllLinks();
+    /**
+     * 获取所有友链
+     * @return
+     */
+    List<FriendLink> getAllFriendLinks();
 
-    //Generator
-    int deleteByPrimaryKey(Integer linkId);
+    /**
+     * 通过ID删除友链
+     * @param linkId
+     * @return
+     */
+    int deleteFriendLinkById(Integer linkId);
 
-    int insert(FriendLink record);
+    /**
+     * 添加友链记录
+     * @param record
+     * @return
+     */
+    int addFriendLink(FriendLink record);
 
-    int insertSelective(FriendLink record);
-
-    FriendLink selectByPrimaryKey(Integer linkId);
-
-    int updateByPrimaryKeySelective(FriendLink record);
-
-    int updateByPrimaryKey(FriendLink record);
+    /**
+     * 更新友链
+     * @param record
+     * @return
+     */
+    int updateFriendLink(FriendLink record);
 }

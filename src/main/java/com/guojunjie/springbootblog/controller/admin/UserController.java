@@ -4,19 +4,20 @@ package com.guojunjie.springbootblog.controller.admin;
 import com.guojunjie.springbootblog.annotation.UserLoginToken;
 import com.guojunjie.springbootblog.common.Result;
 import com.guojunjie.springbootblog.common.ResultGenerator;
-import com.guojunjie.springbootblog.controller.vo.UserVo;
 import com.guojunjie.springbootblog.entity.User;
 import com.guojunjie.springbootblog.entity.UserExtra;
 import com.guojunjie.springbootblog.service.UserService;
+import com.guojunjie.springbootblog.service.dto.UserDetail;
 import com.guojunjie.springbootblog.util.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
+/**
+ * @author guojunjie
+ */
 @RestController
 @RequestMapping("/admin")
 public class UserController {
@@ -27,7 +28,7 @@ public class UserController {
     @PostMapping("/login")
     @ResponseBody
     public Result Login(@RequestBody User user) {
-        User resUser = userService.findUserByUsernameAndPassword(user.getUserName(), user.getPassword());
+        User resUser = userService.getUserByUsernameAndPassword(user.getUserName(), user.getPassword());
         if (resUser != null) {
             String token = JWTUtil.createToken(resUser);
             return ResultGenerator.genSuccessResult(token);
@@ -36,13 +37,13 @@ public class UserController {
     }
 
 
-    @GetMapping("/user/{id}")
+    @GetMapping("/user")
     @UserLoginToken
     @ResponseBody
-    public Result getUser(@PathVariable int id) {
-        UserVo userVo = userService.findUserById(id);
-        if (userVo != null) {
-            return ResultGenerator.genSuccessResult(userVo);
+    public Result getUser() {
+        UserDetail userDetail = userService.getUserDetail();
+        if (userDetail != null) {
+            return ResultGenerator.genSuccessResult(userDetail);
         }
         return ResultGenerator.genErrorResult("没有找到该用户");
     }

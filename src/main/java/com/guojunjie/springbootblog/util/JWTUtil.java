@@ -13,15 +13,27 @@ import java.util.Date;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
+/**
+ * @author guojunjie
+ */
 public class JWTUtil {
 
-    final static String TOKEN_SECRET = "guojunjie";//私钥盐
+    /**
+     * 私钥盐
+     */
+    final static String TOKEN_SECRET = "guojunjie";
 
-    final static long TOKEN_EXP = 1000 * 60 * 60 * 3;//过期时间,发布时修改为2小时
+    /**
+     * 过期时间,发布后修改为2小时
+     */
+    final static long TOKEN_EXP = 1000 * 60 * 60 * 3;
 
 //    final static long TOKEN_EXP = 1000 * 60 * 30;//开发时验证token失效，设置为30分钟
 
-    final static int error_Code = 401;//token失效或错误
+    /**
+     * token失效或错误
+     */
+    final static int error_Code = 401;
 
     /**
      * 生成token
@@ -44,11 +56,6 @@ public class JWTUtil {
             e.printStackTrace();
         }
         return token;
-
-//        String token="";
-//        token= JWT.create().withAudience(String.valueOf(user.getUserId()))
-//                .sign(Algorithm.HMAC256(base64EncodedSecretKey));
-//        return token;
     }
     /**
      * 签名验证
@@ -61,10 +68,6 @@ public class JWTUtil {
         try {
             JWTVerifier verifier = JWT.require(Algorithm.HMAC256(TOKEN_SECRET)).withIssuer("auth0").build();
             DecodedJWT jwt = verifier.verify(token);
-//            System.out.println("认证通过：");
-//            System.out.println("issuer: " + jwt.getIssuer());
-//            System.out.println("userId: " + jwt.getClaim("userId").asString());
-//            System.out.println("过期时间：      " + jwt.getExpiresAt());
             return true;
         } catch (Exception e) {
             return false;

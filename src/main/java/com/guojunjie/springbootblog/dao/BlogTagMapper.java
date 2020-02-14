@@ -1,28 +1,39 @@
 package com.guojunjie.springbootblog.dao;
-
-import com.guojunjie.springbootblog.entity.Blog;
 import com.guojunjie.springbootblog.entity.BlogTag;
 import org.springframework.stereotype.Component;
-
 import java.util.List;
 
+/**
+ * @author guojunjie
+ */
 @Component
 public interface BlogTagMapper {
 
-    List<BlogTag> getAllTag();
+    /**
+     * 获取所有标签
+     * @return
+     */
+    List<BlogTag> getAllTags();
 
-    BlogTag selectByTagName(String tagName);
+    /**
+     * 通过标签名称获取标签记录
+     * @param tagName 标签名，理论上是唯一的
+     * @return
+     */
+    BlogTag getTagByTagName(String tagName);
 
-    //Generator
-    int deleteByPrimaryKey(Integer tagId);
+    /**
+     * 删除标签
+     * @param tagId
+     * @return
+     */
+    int deleteTagById(Integer tagId);
 
-    int insert(BlogTag record);
+    /**
+     * 添加标签
+     * @param record
+     * @return
+     */
+    int addTag(BlogTag record);
 
-    int insertSelective(BlogTag record);
-
-    BlogTag selectByPrimaryKey(Integer tagId);
-
-    int updateByPrimaryKeySelective(BlogTag record);
-
-    int updateByPrimaryKey(BlogTag record);
 }

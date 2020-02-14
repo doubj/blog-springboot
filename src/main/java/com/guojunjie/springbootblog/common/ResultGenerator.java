@@ -1,4 +1,7 @@
 package com.guojunjie.springbootblog.common;
+/**
+ * @author guojunjie
+ */
 public class ResultGenerator {
 
     private static final int RESULT_CODE_SUCCESS = 200;

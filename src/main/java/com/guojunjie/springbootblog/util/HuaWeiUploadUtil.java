@@ -6,6 +6,12 @@ import com.obs.services.model.PutObjectResult;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * @time： 2019/11/21 20:22
+ * @author： guojunjie
+ * TODO： 华为云存储对象服务工具类
+ */
+
 public class HuaWeiUploadUtil {
 
     public static String uploadFile(String path, File file) throws IOException {

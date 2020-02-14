@@ -11,29 +11,16 @@
     link_id, link_name, link_url, avatar
   </sql>
 
-  <select id="selectAllLinks" resultMap="BaseResultMap" >
+  <select id="getAllFriendLinks" resultMap="BaseResultMap" >
     select
     <include refid="Base_Column_List" />
     from tb_link
   </select>
-
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select 
-    <include refid="Base_Column_List" />
-    from tb_link
-    where link_id = #{linkId,jdbcType=INTEGER}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <delete id="deleteFriendLinkById" parameterType="java.lang.Integer">
     delete from tb_link
     where link_id = #{linkId,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.guojunjie.springbootblog.entity.FriendLink">
-    insert into tb_link (link_id, link_name, link_url, 
-      avatar)
-    values (#{linkId,jdbcType=INTEGER}, #{linkName,jdbcType=VARCHAR}, #{linkUrl,jdbcType=VARCHAR}, 
-      #{avatar,jdbcType=VARCHAR})
-  </insert>
-  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="linkId" keyColumn="link_id" parameterType="com.guojunjie.springbootblog.entity.FriendLink">
+  <insert id="addFriendLink" useGeneratedKeys="true" keyProperty="linkId" keyColumn="link_id" parameterType="com.guojunjie.springbootblog.entity.FriendLink">
     insert into tb_link
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="linkId != null">
@@ -64,7 +51,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.guojunjie.springbootblog.entity.FriendLink">
+  <update id="updateFriendLink" parameterType="com.guojunjie.springbootblog.entity.FriendLink">
     update tb_link
     <set>
       <if test="linkName != null">
@@ -77,13 +64,6 @@
         avatar = #{avatar,jdbcType=VARCHAR},
       </if>
     </set>
-    where link_id = #{linkId,jdbcType=INTEGER}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.guojunjie.springbootblog.entity.FriendLink">
-    update tb_link
-    set link_name = #{linkName,jdbcType=VARCHAR},
-      link_url = #{linkUrl,jdbcType=VARCHAR},
-      avatar = #{avatar,jdbcType=VARCHAR}
     where link_id = #{linkId,jdbcType=INTEGER}
   </update>
 </mapper>

@@ -5,8 +5,11 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+
 /**
- * 将MultipartFile转为File的工具类
+ * @time： 2019/11/21 20:22
+ * @author： guojunjie
+ * TODO： 将MultipartFile转为File的工具类
  */
 public class FileUtil {
 

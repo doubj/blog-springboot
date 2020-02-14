@@ -9,35 +9,23 @@
     tag_id, tag_name
   </sql>
 
-  <select id="selectByTagName" resultMap="BaseResultMap">
+  <select id="getTagByTagName" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from tb_blog_tag
     where tag_name = #{tagName}
   </select>
 
-  <select id="getAllTag" resultMap="BaseResultMap">
+  <select id="getAllTags" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from tb_blog_tag
   </select>
-
-
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select 
-    <include refid="Base_Column_List" />
-    from tb_blog_tag
-    where tag_id = #{tagId,jdbcType=INTEGER}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <delete id="deleteTagById" parameterType="java.lang.Integer">
     delete from tb_blog_tag
     where tag_id = #{tagId,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.guojunjie.springbootblog.entity.BlogTag">
-    insert into tb_blog_tag (tag_id, tag_name)
-    values (#{tagId,jdbcType=INTEGER}, #{tagName,jdbcType=VARCHAR})
-  </insert>
-  <insert id="insertSelective" keyColumn="tag_id" keyProperty="tagId" parameterType="com.guojunjie.springbootblog.entity.BlogTag" useGeneratedKeys="true">
+  <insert id="addTag" keyColumn="tag_id" keyProperty="tagId" parameterType="com.guojunjie.springbootblog.entity.BlogTag" useGeneratedKeys="true">
     insert into tb_blog_tag
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="tagId != null">
@@ -56,18 +44,4 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.guojunjie.springbootblog.entity.BlogTag">
-    update tb_blog_tag
-    <set>
-      <if test="tagName != null">
-        tag_name = #{tagName,jdbcType=VARCHAR},
-      </if>
-    </set>
-    where tag_id = #{tagId,jdbcType=INTEGER}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.guojunjie.springbootblog.entity.BlogTag">
-    update tb_blog_tag
-    set tag_name = #{tagName,jdbcType=VARCHAR}
-    where tag_id = #{tagId,jdbcType=INTEGER}
-  </update>
 </mapper>

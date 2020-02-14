@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.util.List;
 
+/**
+ * @author guojunjie
+ */
 @RestController
 @RequestMapping("/admin")
 public class BlogTagController {
@@ -22,11 +25,11 @@ public class BlogTagController {
     @UserLoginToken
     @GetMapping("/tags")
     @ResponseBody
-    public Result getCategories(){
+    public Result getTags(){
         List<BlogTag> blogTags = blogTagService.getTags();
         if(!blogTags.isEmpty()){
             return ResultGenerator.genSuccessResult(blogTags);
         }
-        return ResultGenerator.genErrorResult("查找分类失败");
+        return ResultGenerator.genErrorResult("查找标签失败");
     }
 }

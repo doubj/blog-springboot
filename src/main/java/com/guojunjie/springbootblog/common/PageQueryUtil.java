@@ -1,5 +1,8 @@
 package com.guojunjie.springbootblog.common;
 
+/**
+ * @author guojunjie
+ */
 public class PageQueryUtil {
 
     private int currentPage;

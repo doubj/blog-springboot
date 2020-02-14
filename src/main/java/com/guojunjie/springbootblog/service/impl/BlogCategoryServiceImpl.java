@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * @author guojunjie
+ */
 @Service
 public class BlogCategoryServiceImpl implements BlogCategoryService {
 
@@ -16,6 +19,6 @@ public class BlogCategoryServiceImpl implements BlogCategoryService {
 
     @Override
     public List<BlogCategory> getCategories() {
-        return blogCategoryMapper.getAllCategory();
+        return blogCategoryMapper.getAllCategories();
     }
 }

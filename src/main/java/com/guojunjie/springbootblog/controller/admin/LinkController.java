@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.util.List;
 
+/**
+ * @author guojunjie
+ */
 @RestController
 @RequestMapping("/admin")
 public class LinkController {
@@ -20,8 +23,8 @@ public class LinkController {
     @GetMapping("/links")
     @UserLoginToken
     @ResponseBody
-    public Result getLinks(){
-        List<FriendLink> resList = linkService.selectLinks();
+    public Result getFriendLinks(){
+        List<FriendLink> resList = linkService.getFriendLinks();
         if(!resList.isEmpty()){
             return ResultGenerator.genSuccessResult(resList);
         }
@@ -31,8 +34,8 @@ public class LinkController {
     @PostMapping("/links")
     @UserLoginToken
     @ResponseBody
-    public Result addLink(@RequestBody FriendLink friendLink){
-        boolean res = linkService.addLink(friendLink);
+    public Result addFriendLink(@RequestBody FriendLink friendLink){
+        boolean res = linkService.addFriendLink(friendLink);
         if(res){
             return ResultGenerator.genSuccessResult("添加友链成功",friendLink);
         }
@@ -42,8 +45,8 @@ public class LinkController {
     @PutMapping("/links")
     @UserLoginToken
     @ResponseBody
-    public Result updateLink(@RequestBody FriendLink friendLink){
-        boolean res = linkService.updateLink(friendLink);
+    public Result updateFriendLink(@RequestBody FriendLink friendLink){
+        boolean res = linkService.updateFriendLink(friendLink);
         if(res){
             return ResultGenerator.genSuccessResult("修改友链成功",friendLink);
         }
@@ -53,8 +56,8 @@ public class LinkController {
     @DeleteMapping("/links/{id}")
     @UserLoginToken
     @ResponseBody
-    public Result updateLink(@PathVariable int id){
-        boolean res = linkService.deleteLink(id);
+    public Result deleteFriendLink(@PathVariable int id){
+        boolean res = linkService.deleteFriendLink(id);
         if(res){
             return ResultGenerator.genSuccessResultMsg("删除友链成功");
         }

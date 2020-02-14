@@ -3,21 +3,25 @@ package com.guojunjie.springbootblog.controller.blog;
 import com.guojunjie.springbootblog.common.PageInfo;
 import com.guojunjie.springbootblog.common.Result;
 import com.guojunjie.springbootblog.common.ResultGenerator;
-import com.guojunjie.springbootblog.controller.vo.BlogDetailVo;
+import com.guojunjie.springbootblog.controller.vo.BlogByMonthVo;
 import com.guojunjie.springbootblog.controller.vo.BlogCategoryVo;
 import com.guojunjie.springbootblog.controller.vo.BlogTagVo;
-import com.guojunjie.springbootblog.entity.Blog;
 import com.guojunjie.springbootblog.entity.FriendLink;
-import com.guojunjie.springbootblog.entity.User;
 import com.guojunjie.springbootblog.entity.UserExtra;
 import com.guojunjie.springbootblog.service.BlogService;
+import com.guojunjie.springbootblog.service.dto.BlogCardDTO;
+import com.guojunjie.springbootblog.service.dto.BlogDetailDTO;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
 
+/**
+ * @author guojunjie
+ */
 @RestController
-@RequestMapping("/blog")
 public class MyBlogController {
 
     @Resource
@@ -26,101 +30,84 @@ public class MyBlogController {
 
     @GetMapping("/page/{currentPage}")
     @ResponseBody
-    public Result getPostByPage(@PathVariable int currentPage){
-        PageInfo pageInfo = blogService.getPostByPage(currentPage);
-        if(pageInfo != null){
-            return ResultGenerator.genSuccessResult(pageInfo);
-        }
-        return ResultGenerator.genErrorResult("获取分页信息失败");
+    public Result getPostByPage(@PathVariable int currentPage) {
+        PageInfo pageInfo = blogService.getBlogByPage(currentPage);
+        return pageInfo == null ? ResultGenerator.genErrorResult("获取分页信息失败") : ResultGenerator.genSuccessResult(pageInfo);
     }
 
-    @GetMapping("/post/{blogId}")
+    @GetMapping("/blog/{blogId}")
     @ResponseBody
-    public Result getPostById(@PathVariable int blogId){
-        BlogDetailVo blogDetailVo = blogService.selectPostDetailById(blogId);
-        if(blogDetailVo != null){
-            return ResultGenerator.genSuccessResult(blogDetailVo);
-        }
-        return ResultGenerator.genErrorResult("获取博客信息失败");
+    public Result getBlogDetailById(@PathVariable int blogId) {
+        BlogDetailDTO blogDetailDTO = blogService.getBlogDetailById(blogId);
+        return blogDetailDTO == null ? ResultGenerator.genErrorResult("获取博客信息失败") : ResultGenerator.genSuccessResult(blogDetailDTO);
     }
 
-    @GetMapping("/categories")
+    @GetMapping("/blog")
     @ResponseBody
-    public Result getCategories(){
-        List<BlogCategoryVo> blogCategoryVos = blogService.getCategories();
-        if(blogCategoryVos != null){
-            return ResultGenerator.genSuccessResult(blogCategoryVos);
-        }
-        return ResultGenerator.genErrorResult("获取分类信息失败");
+    public Result getBlogList() {
+        List<BlogCardDTO> blogCardDTOS = blogService.getPublishedBlogList();
+        return blogCardDTOS == null ? ResultGenerator.genErrorResult("获取博客信息失败") : ResultGenerator.genSuccessResult(blogCardDTOS);
     }
 
-    @GetMapping("/posts")
+    @GetMapping("/statistics/categories")
     @ResponseBody
-    public Result getAllPosts(){
-        List<Blog> blogList = blogService.getPublishPostsList();
-        if(blogList != null){
-            return ResultGenerator.genSuccessResult(blogList);
-        }
-        return ResultGenerator.genErrorResult("获取博客信息失败");
+    public Result getCategoryAndCount() {
+        List<BlogCategoryVo> blogCategoryVos = blogService.getCategoryAndCountWithStatus(true);
+        return blogCategoryVos == null ? ResultGenerator.genErrorResult("获取分类信息失败") : ResultGenerator.genSuccessResult(blogCategoryVos);
     }
 
     @GetMapping("/categories/{categoryName}")
     @ResponseBody
-    public Result getBlogByCategory(@PathVariable String categoryName){
-        List<Blog> blogList = blogService.getPostByCategoryStatus(categoryName);
-        if(blogList != null){
-            return ResultGenerator.genSuccessResult(blogList);
-        }
-        return ResultGenerator.genErrorResult("获取博客信息失败");
+    public Result getBlogListByCategoryName(@PathVariable String categoryName) {
+        List<BlogCardDTO> blogCardDTOS = blogService.getBlogByCategoryAndStatus(categoryName);
+        return blogCardDTOS == null ? ResultGenerator.genErrorResult("获取博客信息失败") : ResultGenerator.genSuccessResult(blogCardDTOS);
     }
 
-    @GetMapping("/tags")
+    @GetMapping("/statistics/tags")
     @ResponseBody
-    public Result getAllTags(){
-        List<BlogTagVo> blogTagVos = blogService.getTags();
-        if(blogTagVos != null){
-            return ResultGenerator.genSuccessResult(blogTagVos);
-        }
-        return ResultGenerator.genErrorResult("获取标签信息失败");
+    public Result getTagAndCount() {
+        List<BlogTagVo> blogTagVos = blogService.getTagAndCountWithStatus(true);
+        return blogTagVos == null ? ResultGenerator.genErrorResult("获取标签信息失败") : ResultGenerator.genSuccessResult(blogTagVos);
     }
 
     @GetMapping("/tags/{tagName}")
     @ResponseBody
-    public Result getBlogByTag(@PathVariable String tagName){
-        List<Blog> blogList = blogService.getPostByTagStatus(tagName);
-        if(blogList != null){
-            return ResultGenerator.genSuccessResult(blogList);
-        }
-        return ResultGenerator.genErrorResult("获取博客信息失败");
+    public Result getBlogListByTagName(@PathVariable String tagName) {
+        List<BlogCardDTO> blogCardDTOS = blogService.getBlogByTagAndStatus(tagName);
+        return blogCardDTOS == null ? ResultGenerator.genErrorResult("获取博客信息失败") : ResultGenerator.genSuccessResult(blogCardDTOS);
     }
 
     @GetMapping("/links")
     @ResponseBody
-    public Result getFriendLinks(){
+    public Result getFriendLinks() {
         List<FriendLink> friendLinks = blogService.getFriendLinks();
-        if(friendLinks != null){
-            return ResultGenerator.genSuccessResult(friendLinks);
-        }
-        return ResultGenerator.genErrorResult("获取友链信息失败");
+        return friendLinks == null ? ResultGenerator.genErrorResult("获取友链信息失败") : ResultGenerator.genSuccessResult(friendLinks);
     }
 
     @GetMapping("/user")
     @ResponseBody
-    public Result getUser(){
-        UserExtra userExtra = blogService.getUser();
-        if(userExtra != null){
-            return ResultGenerator.genSuccessResult(userExtra);
-        }
-        return ResultGenerator.genErrorResult("获取用户信息失败");
+    public Result getUserExtra() {
+        UserExtra userExtra = blogService.getUserExtra();
+        return userExtra == null ? ResultGenerator.genErrorResult("获取用户信息失败") : ResultGenerator.genSuccessResult(userExtra);
     }
 
     @GetMapping("/visits")
     @ResponseBody
-    public Result getVisits(){
+    public Result getVisits() {
         int totalVisits = blogService.getTotalVisits();
-        if(totalVisits >= 0){
-            return ResultGenerator.genSuccessResult(totalVisits);
-        }
-        return ResultGenerator.genErrorResult("获取总访问人数失败");
+        return totalVisits < 0 ? ResultGenerator.genErrorResult("获取总访问人数失败") : ResultGenerator.genSuccessResult(totalVisits);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity search(@RequestParam(value = "keywords") String keyWords) {
+        return new ResponseEntity(blogService.searchBlogByKeywords(keyWords), HttpStatus.OK);
+    }
+
+    @GetMapping("/statistics/blog")
+    @ResponseBody
+    public Result getPublishedBlogCountWithMonth() {
+        List<BlogByMonthVo> list = blogService.getBlogCountInRecentlySixMonthWithStatus(true);
+        return ResultGenerator.genSuccessResult(list);
+    }
+
 }

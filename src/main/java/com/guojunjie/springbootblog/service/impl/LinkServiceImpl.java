@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * @author guojunjie
+ */
 @Service
 public class LinkServiceImpl implements LinkService {
 
@@ -16,22 +19,22 @@ public class LinkServiceImpl implements LinkService {
 
 
     @Override
-    public List<FriendLink> selectLinks(){
-        return friendLinkMapper.selectAllLinks();
+    public List<FriendLink> getFriendLinks(){
+        return friendLinkMapper.getAllFriendLinks();
     }
 
     @Override
-    public boolean addLink(FriendLink friendLink) {
-        return friendLinkMapper.insertSelective(friendLink) != 0;
+    public boolean addFriendLink(FriendLink friendLink) {
+        return friendLinkMapper.addFriendLink(friendLink) != 0;
     }
 
     @Override
-    public boolean updateLink(FriendLink friendLink) {
-        return friendLinkMapper.updateByPrimaryKeySelective(friendLink) != 0;
+    public boolean updateFriendLink(FriendLink friendLink) {
+        return friendLinkMapper.updateFriendLink(friendLink) != 0;
     }
 
     @Override
-    public boolean deleteLink(int id) {
-        return friendLinkMapper.deleteByPrimaryKey(id) != 0;
+    public boolean deleteFriendLink(int id) {
+        return friendLinkMapper.deleteFriendLinkById(id) != 0;
     }
 }

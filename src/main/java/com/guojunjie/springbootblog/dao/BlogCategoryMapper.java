@@ -5,21 +5,36 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * @author guojunjie
+ */
 @Component
 public interface BlogCategoryMapper {
 
-    List<BlogCategory> getAllCategory();
+    /**
+     * 获取所有分类
+     * @return
+     */
+    List<BlogCategory> getAllCategories();
 
-    //Generator
-    int deleteByPrimaryKey(Integer categoryId);
+    /**
+     * 通过ID删除分类记录
+     * @param categoryId
+     * @return
+     */
+    int deleteCategoryById(Integer categoryId);
 
-    int insert(BlogCategory record);
+    /**
+     * 插入一条记录
+     * @param record
+     * @return
+     */
+    int addCategory(BlogCategory record);
 
-    int insertSelective(BlogCategory record);
-
-    BlogCategory selectByPrimaryKey(Integer categoryId);
-
-    int updateByPrimaryKeySelective(BlogCategory record);
-
-    int updateByPrimaryKey(BlogCategory record);
+    /**
+     * 通过Id获取分类
+     * @param categoryId
+     * @return
+     */
+    BlogCategory getCategoryById(Integer categoryId);
 }

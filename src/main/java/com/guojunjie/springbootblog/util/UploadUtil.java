@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * @时间： 2019/11/21 20:22
- * @创建者： guojunjie
- * @描述： 上传图片的工具类，解耦
+ * @time： 2019/11/21 20:22
+ * @author： guojunjie
+ * TODO： 上传图片的工具类，解耦
  */
 public class UploadUtil {
     public static String uploadFile(MultipartFile file, String path) throws IOException {

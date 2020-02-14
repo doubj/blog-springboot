@@ -20,8 +20,10 @@ public class RandomUtil {
 
         Random random = new Random();
 
-        int randNum = (int) (random.nextDouble() * (99999 - 10000 + 1)) + 10000;// 获取5位随机数
+        // 获取5位随机数
+        int randNum = (int) (random.nextDouble() * (99999 - 10000 + 1)) + 10000;
 
-        return randNum + str;// 当前时间
+        // 当前时间
+        return randNum + str;
     }
 }
