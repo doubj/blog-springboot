@@ -1,6 +1,5 @@
 package com.guojunjie.springbootblog.controller.admin;
 
-import com.guojunjie.springbootblog.annotation.UserLoginToken;
 import com.guojunjie.springbootblog.common.Result;
 import com.guojunjie.springbootblog.common.ResultGenerator;
 import com.guojunjie.springbootblog.entity.BlogTag;
@@ -22,14 +21,10 @@ public class BlogTagController {
     @Resource
     BlogTagService blogTagService;
 
-    @UserLoginToken
     @GetMapping("/tags")
     @ResponseBody
     public Result getTags(){
-        List<BlogTag> blogTags = blogTagService.getTags();
-        if(!blogTags.isEmpty()){
-            return ResultGenerator.genSuccessResult(blogTags);
-        }
-        return ResultGenerator.genErrorResult("查找标签失败");
+        List<BlogTag> list = blogTagService.getTags();
+        return ResultGenerator.genSuccessResult(list);
     }
 }

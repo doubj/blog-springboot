@@ -1,6 +1,6 @@
 package com.guojunjie.springbootblog.controller.admin;
 
-import com.guojunjie.springbootblog.annotation.UserLoginToken;
+import com.guojunjie.springbootblog.common.BlogListQueryAdmin;
 import com.guojunjie.springbootblog.common.Result;
 import com.guojunjie.springbootblog.common.ResultGenerator;
 import com.guojunjie.springbootblog.entity.Blog;
@@ -12,8 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
+import java.util.Map;
 
 /**
  * @author guojunjie
@@ -25,127 +24,50 @@ public class BlogController {
     @Resource
     BlogService blogService;
 
-    @GetMapping("/blog")
-    @UserLoginToken
+    @PostMapping("/blog/query")
     @ResponseBody
-    public Result getBlogList() {
-        List<Blog> list = blogService.getBlogList();
-        if (!list.isEmpty()) {
-            return ResultGenerator.genSuccessResult(list);
-        }
-        return ResultGenerator.genErrorResult("获取博客集合失败");
+    public Result getBlogListAndCountByQuery(@RequestBody BlogListQueryAdmin query) {
+        Map<String, Object> res = blogService.getBlogListAndCountByQuery(query);
+        return ResultGenerator.genSuccessResult(res);
     }
 
     @GetMapping("/blog/{id}")
-    @UserLoginToken
     @ResponseBody
     public Result getBlogById(@PathVariable int id) {
         Blog blog = blogService.getBlogById(id);
-        if (blog != null) {
-            return ResultGenerator.genSuccessResult(blog);
-        }
-        return ResultGenerator.genErrorResult("获取id为" + id + "的博客失败");
+        return ResultGenerator.genSuccessResult(blog);
     }
 
     @PostMapping("/blog")
-    @UserLoginToken
     @ResponseBody
-    public Result addBlog(@RequestParam(value = "blogId") Integer blogId,
-                          @RequestParam(value = "blogTitle") String blogTitle,
-                          @RequestParam(value = "file") MultipartFile file,
-                          @RequestParam(value = "blogCategoryId") Integer blogCategoryId,
-                          @RequestParam(value = "blogCategoryName") String blogCategoryName,
-                          @RequestParam(value = "blogTags") String blogTags,
-                          @RequestParam(value = "blogContent") String blogContent) throws IOException {
-
-        //上传背景图
-        String fileName = RandomUtil.getRandomFileName();
-        String url = UploadUtil.uploadFile(file, blogTitle + "/" + fileName);
-
-        Blog blog = new Blog();
-        blog.setBlogId(blogId);
-        blog.setBlogTitle(blogTitle);
-        blog.setBlogCoverImage(url);
-        blog.setBlogCategoryId(blogCategoryId);
-        blog.setBlogCategoryName(blogCategoryName);
-        blog.setBlogTags(blogTags);
-        blog.setBlogContent(blogContent);
-
-        //添加blog
-        boolean res = blogService.addBlog(blog);
-        if (res) {
-            blog.setBlogVisits(0L);
-            blog.setBlogStatus((byte) 0);
-            blog.setCreateTime(new Date());
-            blog.setBlogContent("");
-            return ResultGenerator.genSuccessResult("添加博客成功", blog);
-        }
-        return ResultGenerator.genErrorResult("添加博客失败");
+    public Result addBlog(@RequestBody Blog blog) {
+        blogService.addBlog(blog);
+        return ResultGenerator.genSuccessResult();
     }
 
     @PutMapping("/blog")
-    @UserLoginToken
     @ResponseBody
-    public Result updateBlog(@RequestParam(value = "blogId") Integer blogId,
-                             @RequestParam(value = "blogTitle") String blogTitle,
-                             @RequestParam(value = "file",required = false) MultipartFile file,
-                             @RequestParam(value = "blogCategoryId") Integer blogCategoryId,
-                             @RequestParam(value = "blogCategoryName") String blogCategoryName,
-                             @RequestParam(value = "blogTags") String blogTags,
-                             @RequestParam(value = "blogContent") String blogContent) throws IOException {
-        Blog blog = new Blog();
-        //上传背景图并设置url
-        if(file != null){
-            String fileName = RandomUtil.getRandomFileName();
-            String url = UploadUtil.uploadFile(file, blogTitle + "/" + fileName);
-            blog.setBlogCoverImage(url);
-        }
-        blog.setBlogId(blogId);
-        blog.setBlogTitle(blogTitle);
-        blog.setBlogCategoryId(blogCategoryId);
-        blog.setBlogCategoryName(blogCategoryName);
-        blog.setBlogTags(blogTags);
-        blog.setBlogContent(blogContent);
-
-        boolean res = blogService.updateBlog(blog);
-        if (res) {
-            return ResultGenerator.genSuccessResult("修改博客成功", blog);
-        }
-        return ResultGenerator.genErrorResult("修改博客失败");
+    public Result updateBlog(@RequestBody Blog blog) {
+        blogService.updateBlog(blog);
+        return ResultGenerator.genSuccessResult();
     }
 
-    @DeleteMapping("/blog/{id}")
-    @UserLoginToken
+    @PatchMapping("/blog/status/{id}")
     @ResponseBody
-    public Result deleteBlogById(@PathVariable int id) {
-        boolean res = blogService.deleteBlog(id);
-        if (res) {
-            return ResultGenerator.genSuccessResultMsg("删除博客成功");
-        }
-        return ResultGenerator.genErrorResult("删除博客失败");
-    }
-
-    @PatchMapping("/blog/{status}/{id}")
-    @UserLoginToken
-    @ResponseBody
-    public Result switchBlogStatus(@PathVariable int status, @PathVariable int id) {
-        boolean res = blogService.switchBlogStatus(status, id);
-        if (res) {
-            return ResultGenerator.genSuccessResultMsg("修改状态成功");
-        }
-        return ResultGenerator.genErrorResult("修改状态失败");
+    public Result modifyBlogStatus(@RequestParam String status, @PathVariable int id) {
+        blogService.modifyBlogStatus(status, id);
+        return ResultGenerator.genSuccessResult();
     }
 
     @PostMapping("/blog/file")
-    @UserLoginToken
     @ResponseBody
-    public Result uploadFile(@RequestParam(value = "file", required = false) MultipartFile file, @RequestParam(value = "url", required = false) String url) throws IOException {
-
-        if (url.length() < 0) {
-            return ResultGenerator.genErrorResult("请先写标题");
+    public Result uploadFile(@RequestParam(value = "file", required = false) MultipartFile file, @RequestParam(value = "title", required = false) String title) throws IOException {
+        // todo：这里还有些问题，就是上传了图片后又修改了标题咋办，又或者更新时修改了标题
+        if (title.length() < 0) {
+            return ResultGenerator.genErrorResult("请先写博客标题");
         }
         String fileName = RandomUtil.getRandomFileName();
-        String res = UploadUtil.uploadFile(file, url + "/" + fileName);
+        String res = UploadUtil.uploadFile(file, title + "/" + fileName);
         if (res.length() > 0) {
             return ResultGenerator.genSuccessResult(res);
         }

@@ -1,12 +1,11 @@
 package com.guojunjie.springbootblog.controller.admin;
 
-import com.guojunjie.springbootblog.annotation.UserLoginToken;
 import com.guojunjie.springbootblog.common.Result;
 import com.guojunjie.springbootblog.common.ResultGenerator;
-import com.guojunjie.springbootblog.controller.vo.BlogByMonthVo;
-import com.guojunjie.springbootblog.controller.vo.BlogCategoryVo;
-import com.guojunjie.springbootblog.controller.vo.BlogTagVo;
 import com.guojunjie.springbootblog.service.BlogService;
+import com.guojunjie.springbootblog.service.dto.BlogWithCategoryDTO;
+import com.guojunjie.springbootblog.service.dto.BlogWithMonthDTO;
+import com.guojunjie.springbootblog.service.dto.BlogWithTagDTO;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -21,32 +20,43 @@ import java.util.List;
  * TODO
  */
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/admin/dashboard")
 public class DashboardController {
     @Resource
     BlogService blogService;
 
-    @GetMapping("/statistics/tags")
+    @GetMapping("/visits")
     @ResponseBody
-    @UserLoginToken
-    public Result getTagAndCount() {
-        List<BlogTagVo> blogTagVos = blogService.getTagAndCountWithStatus(false);
-        return blogTagVos == null ? ResultGenerator.genErrorResult("获取标签信息失败") : ResultGenerator.genSuccessResult(blogTagVos);
+    public Result getTotalVisits() {
+        int res = blogService.getTotalVisits();
+        return ResultGenerator.genSuccessResult(res);
     }
 
-    @GetMapping("/statistics/categories")
+    @GetMapping("/blog")
     @ResponseBody
-    @UserLoginToken
-    public Result getCategoryAndCount() {
-        List<BlogCategoryVo> blogCategoryVos = blogService.getCategoryAndCountWithStatus(false);
-        return blogCategoryVos == null ? ResultGenerator.genErrorResult("获取分类信息失败") : ResultGenerator.genSuccessResult(blogCategoryVos);
+    public Result getBlogCount() {
+        int res = blogService.getBlogCount();
+        return ResultGenerator.genSuccessResult(res);
     }
 
-    @GetMapping("/statistics/blog")
+    @GetMapping("/blog/month")
     @ResponseBody
-    @UserLoginToken
     public Result getPublishedBlogCountWithMonth() {
-        List<BlogByMonthVo> list = blogService.getBlogCountInRecentlySixMonthWithStatus(false);
+        List<BlogWithMonthDTO> list = blogService.getBlogCountInRecentlySixMonth();
         return ResultGenerator.genSuccessResult(list);
+    }
+
+    @GetMapping("/tags")
+    @ResponseBody
+    public Result getTagAndCount() {
+        List<BlogWithTagDTO> list = blogService.getTagAndCount();
+        return ResultGenerator.genSuccessResult(list);
+    }
+
+    @GetMapping("/categories")
+    @ResponseBody
+    public Result getCategoryAndCount() {
+        List<BlogWithCategoryDTO> blogCategoryVos = blogService.getCategoryAndCount();
+        return ResultGenerator.genSuccessResult(blogCategoryVos);
     }
 }

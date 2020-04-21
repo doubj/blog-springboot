@@ -16,27 +16,27 @@ import java.io.Serializable;
 @ToString
 public class Result<T> implements Serializable {
     private static final long serialVersionUID = 1L;
-    private int resultCode;
-    private String message;
+    private int code;
+    private String msg;
     private T data;
 
-    public Result(int resultCode){
-        this.resultCode = resultCode;
+    public Result(int code){
+        this.code = code;
     }
 
-    public Result(int resultCode,T data){
-        this.resultCode = resultCode;
+    public Result(int code, T data){
+        this.code = code;
         this.data = data;
     }
 
-    public Result(int resultCode, String message) {
-        this.resultCode = resultCode;
-        this.message = message;
+    public Result(int code, String msg) {
+        this.code = code;
+        this.msg = msg;
     }
 
-    public Result(int resultCode,String message,T data){
-        this.resultCode = resultCode;
-        this.message = message;
+    public Result(int code, String msg, T data){
+        this.code = code;
+        this.msg = msg;
         this.data = data;
     }
 }

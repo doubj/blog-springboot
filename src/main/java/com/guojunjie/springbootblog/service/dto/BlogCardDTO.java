@@ -13,7 +13,7 @@ import java.util.Date;
  */
 @Data
 @ToString
-public class BlogCardDTO{
+public class BlogCardDTO {
     private Integer blogId;
 
     private String blogTitle;

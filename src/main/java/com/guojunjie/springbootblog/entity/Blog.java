@@ -30,9 +30,7 @@ public class Blog {
 
     private String blogTags;
 
-    private Integer isDeleted;
-
-    private Byte blogStatus;
+    private String blogStatus;
 
     private Long blogVisits;
 

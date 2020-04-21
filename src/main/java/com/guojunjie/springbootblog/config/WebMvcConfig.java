@@ -16,6 +16,7 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
+        // 处理跨域问题，这里设置所有请求的所有方式
         registry.addMapping("/**")
                 .allowedOrigins("*")
                 .allowedMethods("POST", "GET", "PUT", "OPTIONS", "DELETE", "PATCH")
@@ -27,7 +28,7 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
     public void addInterceptors(InterceptorRegistry registry) {
         // 拦截所有请求，通过判断是否有 @LoginRequired 注解 决定是否需要登录
         registry.addInterceptor(authenticationInterceptor())
-                .addPathPatterns("/**");
+                .addPathPatterns("/admin/**").excludePathPatterns("/admin/login");
     }
 
     @Bean

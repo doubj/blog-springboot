@@ -5,14 +5,18 @@
     <id column="user_id" jdbcType="INTEGER" property="userId" />
     <result column="user_name" jdbcType="VARCHAR" property="userName" />
     <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="nick_name" jdbcType="VARCHAR" property="nickName" />
+    <result column="avatar" jdbcType="VARCHAR" property="avatar" />
+    <result column="introduce" jdbcType="VARCHAR" property="introduce" />
+    <result column="roles" jdbcType="VARCHAR" property="roles" />
   </resultMap>
-  <sql id="Base_Column_List">
-    user_id, user_name, password
+  <sql id="User_Profile">
+    nick_name, avatar, introduce, roles
   </sql>
 
   <select id="getUserByUsernameAndPassword" resultMap="BaseResultMap">
     select
-    <include refid="Base_Column_List" />
+    user_name
     from tb_user
     where user_name = #{userName}
     and password = #{password}
@@ -20,10 +24,17 @@
 
   <select id="getUser" resultMap="BaseResultMap">
     select
-    <include refid="Base_Column_List" />
+    <include refid="User_Profile" />
     from tb_user
-    limit 0,1
+    where user_name = #{userName}
   </select>
+    <select id="getUserInfo" resultMap="BaseResultMap">
+      select
+      nick_name,avatar,introduce
+      from tb_user
+      limit 0,1
+    </select>
+    <!-- 待修改 -->
   <update id="updateUser" parameterType="com.guojunjie.springbootblog.entity.User">
     update tb_user
     <set>

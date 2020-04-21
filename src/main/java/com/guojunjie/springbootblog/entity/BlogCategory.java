@@ -10,6 +10,5 @@ import lombok.ToString;
 @ToString
 public class BlogCategory {
     private Integer categoryId;
-
     private String categoryName;
 }

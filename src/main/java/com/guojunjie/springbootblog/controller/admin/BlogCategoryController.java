@@ -1,6 +1,5 @@
 package com.guojunjie.springbootblog.controller.admin;
 
-import com.guojunjie.springbootblog.annotation.UserLoginToken;
 import com.guojunjie.springbootblog.common.Result;
 import com.guojunjie.springbootblog.common.ResultGenerator;
 import com.guojunjie.springbootblog.entity.BlogCategory;
@@ -22,14 +21,10 @@ public class BlogCategoryController {
     @Resource
     BlogCategoryService blogCategoryService;
 
-    @UserLoginToken
     @GetMapping("/categories")
     @ResponseBody
     public Result getCategories(){
-        List<BlogCategory> blogCategories = blogCategoryService.getCategories();
-        if(!blogCategories.isEmpty()){
-            return ResultGenerator.genSuccessResult(blogCategories);
-        }
-        return ResultGenerator.genErrorResult("查找分类失败");
+        List<BlogCategory> list = blogCategoryService.getCategories();
+        return ResultGenerator.genSuccessResult(list);
     }
 }

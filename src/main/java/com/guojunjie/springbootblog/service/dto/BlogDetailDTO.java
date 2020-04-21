@@ -28,7 +28,7 @@ public class BlogDetailDTO {
 
     private String blogTags;
 
-    private Byte blogStatus;
+    private String blogStatus;
 
     private Long blogVisits;
 

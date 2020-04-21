@@ -23,10 +23,9 @@ public interface BlogTagRelationMapper {
     /**
      * 通过标签Id标签对应的数量，如果是前台查询，会区分是否出版
      * @param tagId 标签表的主键，在关系表中是外检
-     * @param drafts 如果是前台查询，会先查有没有未出版的博客，剔除出版博客的标签关系
      * @return 返回对应的数量
      */
-    int getBlogTagRelationCountByTagId(@Param("tagId") int tagId,@Param("drafts") List<Blog> drafts);
+    int getBlogTagRelationCountByTagId(@Param("tagId") int tagId);
 
     /**
      * 通过Id,删除记录

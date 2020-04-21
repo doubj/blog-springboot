@@ -1,5 +1,7 @@
 package com.guojunjie.springbootblog.dao;
 
+import com.guojunjie.springbootblog.common.BlogListQuery;
+import com.guojunjie.springbootblog.common.BlogListQueryAdmin;
 import com.guojunjie.springbootblog.entity.Blog;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
@@ -12,112 +14,104 @@ import java.util.List;
 @Component
 public interface BlogMapper {
 
-    //后台服务
+    /**
+     * 通过查询条件动态查询
+     * @param query 后台的查询对象，包括页码信息和标题、分类、ID正逆序等查询信息
+     * @return 返回该页内容
+     */
+    List<Blog> getBlogByQueryAdmin(BlogListQueryAdmin query);
 
     /**
-     * 用是否出版来区分前后台对所有博客的查询
-     * @param isPublished
-     * @return
+     * 返回符合查询条件的总记录数
+     * @param query 返回符合查询条件的记录数作为总记录数交给前端计算总页面数
+     * @return 总记录数
      */
-    List<Blog> getBlogListWithStatus(@Param("isPublished") boolean isPublished);
+    int getCountByQuery(BlogListQueryAdmin query);
 
     /**
-     * 通过分类ID获取该分类ID下的博客数，同样用一个布尔值区分前后台
-     * @param blogCategoryId
-     * @param isPublished
-     * @return
+     * 纵江湖前台博客展示页获取博客列表，由于设定是无限滚动加载，没用用到分页所以不需要
+     * 总记录数来计算总页数，query中也只包含每次加载的博客数6和分类及标签信息
+     * 标签的判断是通过mysql中的locate方法
+     * todo:目前分类和标签的筛选逻辑是与，也就是是该分类并且有标签数组中的标签，也许可以换成或逻辑
+     * @param blogListQuery 查询条件
+     * @return 博客集合
      */
-    int getBlogCountByCategoryIdAndStatus(@Param("blogCategoryId")int blogCategoryId,@Param("isPublished")boolean isPublished);
+    List<Blog> getBlogByQuery(BlogListQuery blogListQuery);
+
+    /**
+     * 获取所有博客列表，可以用于统计近6月书写博客数
+     * @return 返回所有博客
+     */
+    List<Blog> getBlogList();
+
+    /**
+     * 通过分类ID获取该分类ID下的博客数，可以返回分类和对应的博客数给echart图标展示
+     * 注意：不区分是否发表
+     * @param blogCategoryId 分类Id
+     * @return 该Id对应的博客数
+     */
+    int getBlogCountByCategoryId(@Param("blogCategoryId")int blogCategoryId);
 
     /**
      * 修改博客状态
-     * @param status 原状态
+     * @param status 目标状态 发表：'published' 草稿：'draft'  删除: 'deleted'
      * @param blogId 博客ID
-     * @return
+     * @return 影响的行数
      */
-    int setStatus(@Param("status")int status,@Param("blogId")int blogId);
-
-    //前台服务
+    int setStatus(@Param("status")String status,@Param("blogId")int blogId);
 
     /**
-     * 获取总博客数
-     * @return
-     */
-    int getTotalCount();
-
-    /**
-     * 根据分类名获取博客
-     * @param categoryName
-     * @return
-     */
-    List<Blog> getBlogByCategoryAndStatus(String categoryName);
-
-    /**
-     * 分页获取博客
-     * @param start
-     * @param limit
-     * @return
-     */
-    List<Blog> getBlogByPage(@Param("start") int start, @Param("limit") int limit);
-
-    /**
-     * 获取上一篇博客
-     * @param blogId
-     * @return
-     */
-    Blog getPreviousBlog(int blogId);
-
-    /**
-     * 获取下一篇博客
-     * @param blogId
-     * @return
-     */
-    Blog getNextBlog(int blogId);
-
-    /**
-     * 根据ID获取已发布的博客
-     * @param blogId
-     * @return
-     */
-    Blog getBlogByTag(int blogId);
-
-    /**
-     * 获取总访问量
-     * @return
-     */
-    int getTotalVisits();
-
-    /**
-     * 删除博客
-     * @param blogId
-     * @return
-     */
-    int deleteBlogById(Integer blogId);
-
-    /**
-     * 添加博客
-     * @param record
-     * @return
+     * 添加一篇博客
+     * @param record 待博客记录
+     * @return 影响行数
      */
     int addBlog(Blog record);
 
     /**
      * 通过主键获取博客详情
-     * @param blogId
-     * @return
+     * @param blogId 博客表主键
+     * @return 博客详情
      */
     Blog getBlogById(Integer blogId);
 
     /**
-     * 更新博客
-     * @param record
-     * @return
+     * 更新一篇博客
+     * @param record 待更新博客记录
+     * @return 影响行数
      */
     int updateBlog(Blog record);
 
     /**
-     * 获取所有草稿（未出版的文章）
+     * 获取总博客数,后台dashboard统计博客总数需要
+     * @return 博客总数
+     */
+    int getTotalCount();
+
+
+    /**
+     * 获取上一篇博客，通过子查询找到倒叙主键id中id<blogId中的第一个（也就是blogId的上一个）
+     * @param blogId 当前博客Id
+     * @return 上一篇博客记录
+     */
+    Blog getPreviousBlog(int blogId);
+
+    /**
+     * 获取下一篇博客，和上面的方法类似
+     * @param blogId 当前博客Id
+     * @return 下一篇博客记录
+     */
+    Blog getNextBlog(int blogId);
+
+    /**
+     * 获取总访问量,sum(visits)
+     * @return 总访问量
+     */
+    int getTotalVisits();
+
+    /**
+     * todo:修改删除为真正的删除，周期任务：每XXX天凌晨检查状态为deleted的博客是否超过xx天，若是就自动删除
+     * @param blogId
      * @return
      */
-    List<Blog> getDrafts();
+    int deleteBlogById(Integer blogId);
 }

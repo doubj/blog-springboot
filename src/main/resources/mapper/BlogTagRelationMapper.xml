@@ -21,11 +21,6 @@
     select count(0)
     from tb_blog_tag_relation
     where tag_id = #{tagId}
-    <if test=" null != drafts">
-        <foreach collection="drafts" item="draft" open="and blog_id in(" close=")" separator=",">
-        #{draft.blogId}
-        </foreach>
-    </if>
   </select>
   <delete id="deleteBlogTagRelationById" parameterType="java.lang.Integer">
     delete from tb_blog_tag_relation

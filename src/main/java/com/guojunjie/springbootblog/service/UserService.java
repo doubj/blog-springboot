@@ -1,8 +1,6 @@
 package com.guojunjie.springbootblog.service;
 
 import com.guojunjie.springbootblog.entity.User;
-import com.guojunjie.springbootblog.entity.UserExtra;
-import com.guojunjie.springbootblog.service.dto.UserDetail;
 
 
 /**
@@ -10,31 +8,25 @@ import com.guojunjie.springbootblog.service.dto.UserDetail;
  */
 public interface UserService {
 
-    /**
-     * 获取用户详情
-     * @return
-     */
-    UserDetail getUserDetail();
 
     /**
-     * 登录
-     * @param userName
-     * @param password
-     * @return
+     * 根据token获取用户信息
+     * @param token token
+     * @return 返回用户信息
      */
-    User getUserByUsernameAndPassword(String userName, String password);
+    User getUser(String token);
 
     /**
-     * 更新账户信息
-     * @param user
-     * @return
+     * 登录：验证用户名和密码，登录成功返回2小时时效的token
+     * @param userName 用户名
+     * @param password 密码
+     * @return token
      */
-    boolean updateUser(User user);
+    String getUserByUsernameAndPassword(String userName, String password);
 
     /**
-     * 更新用户信息
-     * @param userExtra
-     * @return
+     * 获取用户info
+     * @return 只包含用户信息，不包含账户信息
      */
-    boolean updateUserExtra(UserExtra userExtra);
+    User getUserInfo();
 }
