@@ -10,10 +10,7 @@ import lombok.ToString;
 @ToString
 public class FriendLink {
     private Integer linkId;
-
     private String linkName;
-
     private String linkUrl;
-
     private String avatar;
 }

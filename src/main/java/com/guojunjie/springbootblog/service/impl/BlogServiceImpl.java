@@ -3,7 +3,11 @@ package com.guojunjie.springbootblog.service.impl;
 import com.guojunjie.springbootblog.common.*;
 import com.guojunjie.springbootblog.dao.*;
 import com.guojunjie.springbootblog.entity.*;
+import com.guojunjie.springbootblog.exception.BusinessException;
+import com.guojunjie.springbootblog.service.BlogCategoryService;
 import com.guojunjie.springbootblog.service.BlogService;
+import com.guojunjie.springbootblog.service.BlogTagRelationService;
+import com.guojunjie.springbootblog.service.BlogTagService;
 import com.guojunjie.springbootblog.service.dto.*;
 import com.guojunjie.springbootblog.service.mapper.BlogCardMapper;
 import com.guojunjie.springbootblog.service.mapper.BlogDetailMapper;
@@ -22,9 +26,18 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -37,14 +50,22 @@ public class BlogServiceImpl implements BlogService {
     @Autowired
     BlogMapper blogMapper;
     @Autowired
-    BlogCategoryMapper blogCategoryMapper;
+    BlogCategoryService blogCategoryService;
     @Autowired
-    BlogTagMapper blogTagMapper;
+    BlogTagService blogTagService;
+    // 解决@Async调本类方法无效https://blog.csdn.net/qq_36722648/article/details/102171458
+    @Lazy
     @Autowired
-    BlogTagRelationMapper blogTagRelationMapper;
+    BlogService blogService;
+    @Autowired
+    BlogTagRelationService blogTagRelationService;
     @Autowired
     RestHighLevelClient restHighLevelClient;
 
+    @Autowired
+    private RedisTemplate<String, String> template;
+    @Resource(name = "redisTemplate")
+    private ZSetOperations<String, String> zsetOps;
 
     @Autowired
     BlogDetailMapper blogDetailMapper;
@@ -76,14 +97,14 @@ public class BlogServiceImpl implements BlogService {
         return false;
     }
 
+
     private void ensureBlogCategory(Blog blog) {
-        boolean resCategoryFind = this.findBlogCategoryById(blog.getBlogCategoryId());
-        if (resCategoryFind) {
+        if (blogCategoryService.getCategoryById(blog.getBlogCategoryId()) == null) {
             //1. 分类不存在
             //2. 向分类表添加该分类
             BlogCategory blogCategory = this.addBlogCategory(blog.getBlogCategoryName());
             //3 重新填入分类id
-            blog.setBlogCategoryId(blogCategory != null ? blogCategory.getCategoryId() : null);
+            blog.setBlogCategoryId(blogCategory.getCategoryId());
         }
     }
 
@@ -91,35 +112,34 @@ public class BlogServiceImpl implements BlogService {
         BlogTagRelation blogTagRelation = new BlogTagRelation();
         blogTagRelation.setBlogId(blogId);
         blogTagRelation.setTagId(blogTag.getTagId());
-        blogTagRelationMapper.addBlogTagRelation(blogTagRelation);
-    }
-
-    private boolean findBlogCategoryById(int blogCategoryId) {
-        BlogCategory blogCategory = blogCategoryMapper.getCategoryById(blogCategoryId);
-        return blogCategory == null;
+        blogTagRelationService.addBlogTagRelation(blogTagRelation);
     }
 
     private BlogCategory addBlogCategory(String categoryName) {
         BlogCategory blogCategory = new BlogCategory();
         blogCategory.setCategoryName(categoryName);
-        if (blogCategoryMapper.addCategory(blogCategory) < 1) {
-            return null;
-        }
+        blogCategoryService.addCategory(blogCategory);
         return blogCategory;
     }
 
+    /**
+     * 添加新的标签，并返回所有待添加到关系表的标签集合
+     *
+     * @param blogTags 标签集合字符串
+     * @return 待添加到关系表的标签集合
+     */
     private List<BlogTag> getAddTags(String blogTags) {
         String[] tags = blogTags.split(",");
         List<BlogTag> res = new ArrayList<>();
         for (String s : tags) {
             //遍历标签名称
             //获取标签类
-            BlogTag blogTag = blogTagMapper.getTagByTagName(s);
+            BlogTag blogTag = blogTagService.getTagByTagName(s);
             if (blogTag == null) {
                 //若标签不存在，向标签表添加数据
                 BlogTag blogTagNew = new BlogTag();
                 blogTagNew.setTagName(s);
-                blogTagMapper.addTag(blogTagNew);
+                blogTagService.addTag(blogTagNew);
                 res.add(blogTagNew);
             } else {
                 //若标签存在,直接添加
@@ -142,7 +162,6 @@ public class BlogServiceImpl implements BlogService {
             checkCategory(blogOld.getBlogCategoryId());
         }
         //3. 提交更新
-        blogNew.setUpdateTime(new Date());
         int res = blogMapper.updateBlog(blogNew);
         if (res > 0) {
             //更新成功
@@ -152,7 +171,7 @@ public class BlogServiceImpl implements BlogService {
             List<String> oldList = this.asArrayList(blogOld.getBlogTags().split(","));
             List<String> newList = this.asArrayList(blogNew.getBlogTags().split(","));
             removeSameTags(oldList, newList);
-            //4.2 修改了标签
+            //4.2 有新的标签则添加新标签和新的关系记录
             if (newList.size() > 0) {
                 //4.3 确保新标签，获取新增的标签集合
                 String newTags = asString(newList);
@@ -162,39 +181,67 @@ public class BlogServiceImpl implements BlogService {
                     addBlogTagRelation(blogTag, blogNew.getBlogId());
                 }
             }
-            //4.3 有弃用的标签
+            //4.3 有旧的标签则检查旧标签是否要删除并删除关系记录
             if (oldList.size() > 0) {
-                checkTags(oldList);
+                checkTags(oldList, blogNew.getBlogId());
+            }
+            // 如果改了标题，则需要修改Redis中的推荐数据
+            if(!blogNew.getBlogTitle().equals(blogOld.getBlogTitle())){
+                blogService.updateRecommendTitle(blogNew);
             }
             return true;
         }
         return false;
     }
 
+    @Override
+    @Scheduled(cron = "0 0 4 1/5 * ?")
+    @Async
+    public void checkBlogScheduled() {
+        // 从每月的1号开始，每隔五天在凌晨4点检查一次 0 0 4 1/5 * ?
+        // * * * * * ?
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String expireTime = sdf.format(System.currentTimeMillis() - 15 * 24 * 60 * 60 * 1000);
+        List<Blog> list = blogMapper.getNeedDeletedBlogList(expireTime);
+
+        // 1.删除表中记录以及弃用的记录
+        for (Blog blog : list) {
+            // 1.1 删除博客记录
+            blogMapper.deleteBlogById(blog.getBlogId());
+            // 1.2 删除弃用的分类
+            checkCategory(blog.getBlogCategoryId());
+            // 1.3 删除弃用的标签和关系记录
+            List<String> oldTags = this.asArrayList(blog.getBlogTags().split(","));
+            checkTags(oldTags, blog.getBlogId());
+        }
+        // todo:删除存在云对象上的图片
+    }
+
     private void checkCategory(int categoryId) {
         int res = blogMapper.getBlogCountByCategoryId(categoryId);
         if (res <= 1) {
             //2.2.1 删除分类
-            blogCategoryMapper.deleteCategoryById(categoryId);
+            blogCategoryService.deleteCategoryById(categoryId);
         }
     }
 
-    private void checkTags(List<String> list) {
+    private void checkTags(List<String> list, int blogId) {
         List<BlogTag> blogTags = new ArrayList<>();
-        //4.4 获取所有弃用的标签
+        // 4.4 获取所有弃用的标签
         for (String tagName : list) {
-            BlogTag blogTag = blogTagMapper.getTagByTagName(tagName);
+            BlogTag blogTag = blogTagService.getTagByTagName(tagName);
             blogTags.add(blogTag);
         }
-        //4.5 判断该标签还被使用
+        // 4.5 判断该标签是否还被使用
         for (BlogTag blogTag : blogTags) {
-            List<BlogTagRelation> blogTagRelations = blogTagRelationMapper.getBlogTagRelationByTagId(blogTag.getTagId());
+            List<BlogTagRelation> blogTagRelations = blogTagRelationService.getBlogTagRelationByTagId(blogTag.getTagId());
             if (blogTagRelations.size() <= 1) {
-                //若标签没被引用，则删除该标签
+                // 若标签没被引用，则删除该标签
                 BlogTagRelation blogTagRelation = blogTagRelations.get(0);
-                blogTagMapper.deleteTagById(blogTagRelation.getTagId());
-                blogTagRelationMapper.deleteBlogTagRelationById(blogTagRelation.getRelationId());
+                blogTagService.deleteTagById(blogTagRelation.getTagId());
             }
+            // 4.6 删除关系表中不再有关系的记录
+            blogTagRelationService.deleteBlogTagRelationByTagIdAndBlogId(blogTag.getTagId(), blogId);
         }
     }
 
@@ -244,17 +291,96 @@ public class BlogServiceImpl implements BlogService {
             if (nextBlog != null) {
                 blogDetailDTO.setNextBlog(blogCardMapper.toDto(nextBlog));
             }
-            //直接修改数据库中的访问量
-//            blog.setBlogVisits(blog.getBlogVisits() + 1);
-//            blogMapper.updateBlog(blog);
+            Long visits = blog.getBlogVisits() + 1;
+            blog.setBlogVisits(visits);
+            blogMapper.addVisits(blogId,visits);
+            // 增加推荐分数
+            blogService.incrRecommendScore(blog);
             return blogDetailDTO;
         }
         return null;
     }
 
+
+    @Override
+    @Async
+    public void setRecommend() {
+        if(template.hasKey(Constants.RECOMMEND_ZSET_KEY)){
+            template.delete(Constants.RECOMMEND_ZSET_KEY);
+        }
+        List<Blog> list = blogMapper.getBlogList(true);
+        for(Blog blog : list){
+            String member = generateMember(blog);
+            zsetOps.add(Constants.RECOMMEND_ZSET_KEY, member,1);
+        }
+    }
+
+    private String generateMember(Blog blog){
+        final String END_MARK = "---doubj";
+        StringBuffer sb = new StringBuffer();
+        sb.append(blog.getBlogTitle());
+        sb.append(END_MARK);
+        sb.append(blog.getBlogId());
+        return sb.toString();
+    }
+
+    @Override
+    public Set<ZSetOperations.TypedTuple<String>> getRecommendList() {
+        Set<ZSetOperations.TypedTuple<String>> set = zsetOps.reverseRangeWithScores("recommendZset", 0, -1);
+        return set;
+    }
+
+    @Override
+    @Async
+    public void incrRecommendScore(Blog blog) {
+        String member = generateMember(blog);
+        zsetOps.incrementScore(Constants.RECOMMEND_ZSET_KEY, member,2);
+    }
+
+    @Override
+    @Async
+    public void addRecommendMember(int blogId) {
+        Blog blog = blogMapper.getBlogById(blogId);
+        String member = generateMember(blog);
+        zsetOps.add(Constants.RECOMMEND_ZSET_KEY, member,5);
+    }
+
+    @Override
+    public void removeRecommendMember(int blogId) {
+        Blog blog = blogMapper.getBlogById(blogId);
+        String member = generateMember(blog);
+        zsetOps.remove(Constants.RECOMMEND_ZSET_KEY, member);
+    }
+
+    @Override
+    @Async
+    public void updateRecommendTitle(Blog blogNew) {
+        Set<ZSetOperations.TypedTuple<String>> set = zsetOps.reverseRangeWithScores(Constants.RECOMMEND_ZSET_KEY, 0, -1);
+        for(ZSetOperations.TypedTuple<String> typedTuple : set){
+            String str = typedTuple.getValue();
+            int blogId = Integer.valueOf(str.substring(str.lastIndexOf("---doubj") + 1));
+            if(blogId == blogNew.getBlogId()){
+                zsetOps.remove(Constants.RECOMMEND_ZSET_KEY,str);
+                String member = generateMember(blogNew);
+                zsetOps.add(Constants.RECOMMEND_ZSET_KEY, member,1);
+            }
+        }
+    }
+
+    /**
+     * 每月1号重置推荐文章
+     */
+    @Override
+    @Scheduled(cron = "0 0 0 1 * ? ")
+    @Async
+    public void resetRecommendScheduled() {
+        template.delete(Constants.RECOMMEND_ZSET_KEY);
+        setRecommend();
+    }
+
     @Override
     public List<BlogWithCategoryDTO> getCategoryAndCount() {
-        List<BlogCategory> blogCategories = blogCategoryMapper.getAllCategories();
+        List<BlogCategory> blogCategories = blogCategoryService.getCategories();
         List<BlogWithCategoryDTO> res = new ArrayList<>();
         for (BlogCategory blogCategory : blogCategories) {
             BlogWithCategoryDTO blogWithCategoryDTO = new BlogWithCategoryDTO();
@@ -274,7 +400,7 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public List<BlogWithTagDTO> getTagAndCount() {
         // 1. 获取所有标签
-        List<BlogTag> blogTags = blogTagMapper.getAllTags();
+        List<BlogTag> blogTags = blogTagService.getTags();
         List<BlogWithTagDTO> res = new ArrayList<>();
 
         for (BlogTag blogTag : blogTags) {
@@ -284,7 +410,7 @@ public class BlogServiceImpl implements BlogService {
             blogWithTagDTO.setTagId(blogTag.getTagId());
             blogWithTagDTO.setTagName(blogTag.getTagName());
 
-            int blogCount = blogTagRelationMapper.getBlogTagRelationCountByTagId(blogTag.getTagId());
+            int blogCount = blogTagRelationService.getBlogTagRelationCountByTagId(blogTag.getTagId());
             blogWithTagDTO.setBlogCount(blogCount);
             res.add(blogWithTagDTO);
         }
@@ -302,7 +428,7 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public List<BlogWithMonthDTO> getBlogCountInRecentlySixMonth() {
         //获取博客数
-        List<Blog> blogList = blogMapper.getBlogList();
+        List<Blog> blogList = blogMapper.getBlogList(false);
         Calendar cal = Calendar.getInstance();
         //获取近6个月的博客的创建数
         //近6个月区间
@@ -332,11 +458,11 @@ public class BlogServiceImpl implements BlogService {
             }
         } else {
             for (int i = bMonth; i <= 12; i++) {
-                BlogWithMonthDTO blogWithMonthDTO = new BlogWithMonthDTO(Month.getName(i),0);
+                BlogWithMonthDTO blogWithMonthDTO = new BlogWithMonthDTO(Month.getName(i), 0);
                 res.add(blogWithMonthDTO);
             }
             for (int i = 1; i <= eMonth; i++) {
-                BlogWithMonthDTO blogWithMonthDTO = new BlogWithMonthDTO(Month.getName(i),0);
+                BlogWithMonthDTO blogWithMonthDTO = new BlogWithMonthDTO(Month.getName(i), 0);
                 blogWithMonthDTO.setMonth(Month.getName(i));
                 res.add(blogWithMonthDTO);
             }
@@ -431,6 +557,7 @@ public class BlogServiceImpl implements BlogService {
         return map;
     }
 
+
     @Override
     public int getBlogCount() {
         return blogMapper.getTotalCount();
@@ -451,6 +578,11 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public boolean modifyBlogStatus(String status, int id) {
+        if("published".equals(status)){
+            blogService.addRecommendMember(id);
+        } else{
+            blogService.removeRecommendMember(id);
+        }
         return blogMapper.setStatus(status, id) != 0;
     }
 

@@ -28,11 +28,12 @@ public interface BlogTagRelationMapper {
     int getBlogTagRelationCountByTagId(@Param("tagId") int tagId);
 
     /**
-     * 通过Id,删除记录
-     * @param relationId 博客标签关系表的主键
-     * @return 返回影响的行数
+     * 通过标签ID和博客ID找到唯一的记录并删除
+     * @param tagId  标签ID
+     * @param BlogId 博客ID
+     * @return 影响行数
      */
-    int deleteBlogTagRelationById(Integer relationId);
+    int deleteBlogTagRelationByTagIdAndBlogId(@Param("tagId")int tagId,@Param("blogId")int BlogId);
 
     /**
      * 添加博客标签关系记录

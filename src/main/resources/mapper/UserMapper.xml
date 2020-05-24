@@ -11,7 +11,7 @@
     <result column="roles" jdbcType="VARCHAR" property="roles" />
   </resultMap>
   <sql id="User_Profile">
-    nick_name, avatar, introduce, roles
+    user_id, nick_name, avatar, introduce, roles
   </sql>
 
   <select id="getUserByUsernameAndPassword" resultMap="BaseResultMap">
@@ -28,23 +28,39 @@
     from tb_user
     where user_name = #{userName}
   </select>
-    <select id="getUserInfo" resultMap="BaseResultMap">
-      select
-      nick_name,avatar,introduce
-      from tb_user
-      limit 0,1
-    </select>
-    <!-- 待修改 -->
+  <select id="getUniqueUserInfo" resultMap="BaseResultMap">
+    select
+    <include refid="User_Profile" />
+    from tb_user
+    limit 0,1
+  </select>
+  <select id="getPassword" resultType="java.lang.String">
+    select
+    password
+    from tb_user
+    where user_name = #{userName}
+  </select>
   <update id="updateUser" parameterType="com.guojunjie.springbootblog.entity.User">
     update tb_user
     <set>
-      <if test="userName != null">
+      <if test="userName != null and userName !=''">
         user_name = #{userName,jdbcType=VARCHAR},
       </if>
-      <if test="password != null">
+      <if test="password != null and password !=''">
         password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="nickName != null and nickName !=''">
+        nick_name = #{nickName,jdbcType=VARCHAR},
+      </if>
+      <if test="introduce != null and introduce !=''">
+        introduce = #{introduce,jdbcType=VARCHAR},
       </if>
     </set>
     where user_id = #{userId,jdbcType=INTEGER}
+  </update>
+  <update id="updatePassword">
+    update tb_user
+    set password = #{password}
+    where user_name = #{userName}
   </update>
 </mapper>

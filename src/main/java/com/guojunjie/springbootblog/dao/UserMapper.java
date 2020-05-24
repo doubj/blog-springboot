@@ -36,5 +36,19 @@ public interface UserMapper {
      * 获取唯一的用户信息
      * @return
      */
-    User getUserInfo();
+    User getUniqueUserInfo();
+
+    /**
+     * 获取密码
+     * @param userName
+     * @return
+     */
+    String getPassword(String userName);
+
+    /**
+     * 更新密码
+     * @param userName
+     * @param newPass
+     */
+    void updatePassword(@Param("userName")String userName, @Param("password")String newPass);
 }

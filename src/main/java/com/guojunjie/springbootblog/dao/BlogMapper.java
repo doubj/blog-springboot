@@ -1,7 +1,7 @@
 package com.guojunjie.springbootblog.dao;
 
-import com.guojunjie.springbootblog.common.BlogListQuery;
-import com.guojunjie.springbootblog.common.BlogListQueryAdmin;
+import com.guojunjie.springbootblog.service.dto.BlogListQuery;
+import com.guojunjie.springbootblog.service.dto.BlogListQueryAdmin;
 import com.guojunjie.springbootblog.entity.Blog;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
@@ -40,9 +40,10 @@ public interface BlogMapper {
 
     /**
      * 获取所有博客列表，可以用于统计近6月书写博客数
+     * @param isPublished 是否已发表
      * @return 返回所有博客
      */
-    List<Blog> getBlogList();
+    List<Blog> getBlogList(@Param("isPublished")Boolean isPublished);
 
     /**
      * 通过分类ID获取该分类ID下的博客数，可以返回分类和对应的博客数给echart图标展示
@@ -114,4 +115,20 @@ public interface BlogMapper {
      * @return
      */
     int deleteBlogById(Integer blogId);
+
+    /**
+     * 获取状态为deleted并且更新时间超过15天的文章
+     * @param expireTime 过期时间
+     * @return
+     */
+    List<Blog> getNeedDeletedBlogList(String expireTime);
+
+    /**
+     * 增加文章访问量
+     * @param blogId 博客ID
+     * @param incr 增加量
+     */
+    void incrVisits(@Param("blogId")int blogId, @Param("incr")int incr);
+
+    void addVisits(@Param("blogId") int blogId,@Param("visits")Long visits);
 }

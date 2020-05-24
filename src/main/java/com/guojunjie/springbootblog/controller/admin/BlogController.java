@@ -1,6 +1,6 @@
 package com.guojunjie.springbootblog.controller.admin;
 
-import com.guojunjie.springbootblog.common.BlogListQueryAdmin;
+import com.guojunjie.springbootblog.service.dto.BlogListQueryAdmin;
 import com.guojunjie.springbootblog.common.Result;
 import com.guojunjie.springbootblog.common.ResultGenerator;
 import com.guojunjie.springbootblog.entity.Blog;
@@ -57,20 +57,5 @@ public class BlogController {
     public Result modifyBlogStatus(@RequestParam String status, @PathVariable int id) {
         blogService.modifyBlogStatus(status, id);
         return ResultGenerator.genSuccessResult();
-    }
-
-    @PostMapping("/blog/file")
-    @ResponseBody
-    public Result uploadFile(@RequestParam(value = "file", required = false) MultipartFile file, @RequestParam(value = "title", required = false) String title) throws IOException {
-        // todo：这里还有些问题，就是上传了图片后又修改了标题咋办，又或者更新时修改了标题
-        if (title.length() < 0) {
-            return ResultGenerator.genErrorResult("请先写博客标题");
-        }
-        String fileName = RandomUtil.getRandomFileName();
-        String res = UploadUtil.uploadFile(file, title + "/" + fileName);
-        if (res.length() > 0) {
-            return ResultGenerator.genSuccessResult(res);
-        }
-        return ResultGenerator.genErrorResult("上传文件失败");
     }
 }

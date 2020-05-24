@@ -1,4 +1,4 @@
-package com.guojunjie.springbootblog.common;
+package com.guojunjie.springbootblog.service.dto;
 
 import lombok.Data;
 import lombok.ToString;

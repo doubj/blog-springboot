@@ -6,6 +6,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.guojunjie.springbootblog.common.ResultCode;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -31,11 +32,6 @@ public class JWTUtil {
      * 开发时验证token失效，设置为1分钟
      */
 //    final static long TOKEN_EXP = 1000 * 60;
-
-    /**
-     * token失效或错误
-     */
-    final static int ERROR_TOKEN_CODE = 401;
 
     /**
      * 生成token
@@ -73,7 +69,6 @@ public class JWTUtil {
             Map<String, Claim> claims = jwt.getClaims();
             Claim claim = claims.get("userName");
             String userName = claim.asString();
-            System.out.println(userName);
             return userName;
         } catch (Exception e) {
             return null;
@@ -85,7 +80,7 @@ public class JWTUtil {
         response.setContentType("application/json; charset=utf-8");
         JSONObject json = new JSONObject();
         json.put("msg",msg);
-        json.put("code", ERROR_TOKEN_CODE);
+        json.put("code", ResultCode.SIGNATURE_NOT_MATCH.getResultCode());
         try {
             response.getWriter().append(json.toJSONString());
         } catch (IOException e) {

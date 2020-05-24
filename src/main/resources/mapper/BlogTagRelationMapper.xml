@@ -22,9 +22,10 @@
     from tb_blog_tag_relation
     where tag_id = #{tagId}
   </select>
-  <delete id="deleteBlogTagRelationById" parameterType="java.lang.Integer">
+  <delete id="deleteBlogTagRelationByTagIdAndBlogId" parameterType="java.lang.Integer">
     delete from tb_blog_tag_relation
-    where relation_id = #{relationId,jdbcType=INTEGER}
+    where tag_id = #{tagId}
+    and blog_id = #{blogId}
   </delete>
   <insert id="addBlogTagRelation" parameterType="com.guojunjie.springbootblog.entity.BlogTagRelation">
     insert into tb_blog_tag_relation

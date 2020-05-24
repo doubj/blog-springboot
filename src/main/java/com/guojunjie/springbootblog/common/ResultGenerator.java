@@ -4,35 +4,53 @@ package com.guojunjie.springbootblog.common;
  */
 public class ResultGenerator {
 
-    private static final int RESULT_CODE_SUCCESS = 200;
-    private static final int RESULT_CODE_ERROR = 500;
-
+    /**
+     * 返回不带数据只有code=200的成功响应结果
+     *
+     * @return
+     */
     public static Result genSuccessResult() {
-        return new Result(RESULT_CODE_SUCCESS);
+        return genSuccessResult(null);
     }
 
-    public static Result genSuccessResultMsg(String message) {
-        return new Result(RESULT_CODE_SUCCESS,message);
-    }
-
+    /**
+     * 带数据集的成功响应结果
+     *
+     * @param data
+     * @return
+     */
     public static Result genSuccessResult(Object data) {
-        return new Result(RESULT_CODE_SUCCESS,data);
-    }
-
-    public static Result genSuccessResult(String message,Object data){
-        return new Result(RESULT_CODE_SUCCESS,message,data);
+        return new Result(ResultCode.SUCCESS.getResultCode(),data);
     }
 
 
+    /**
+     * 通用的500服务器异常
+     *
+     * @return
+     */
     public static Result genErrorResult(){
-        return new Result(RESULT_CODE_ERROR,"请求失败");
+        return genErrorResult(ResultCode.INTERNAL_SERVER_ERROR);
     }
 
-    public static Result genErrorResult(String message) {
-        return new Result(RESULT_CODE_ERROR,message);
-    }
-
-    public static Result genErrorResult(int code, String message) {
+    /**
+     * 使用自定义异常
+     *
+     * @param code
+     * @param message
+     * @return
+     */
+    public static Result genErrorResult(Integer code,String message) {
         return new Result(code,message);
+    }
+
+    /**
+     * 使用异常枚举类中规定好的异常
+     *
+     * @param resultCode
+     * @return
+     */
+    public static Result genErrorResult(ResultCode resultCode) {
+        return new Result(resultCode.getResultCode(),resultCode.getResultMsg());
     }
 }

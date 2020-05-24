@@ -1,20 +1,22 @@
 package com.guojunjie.springbootblog.service;
 
-import com.guojunjie.springbootblog.common.BlogListQuery;
-import com.guojunjie.springbootblog.common.BlogListQueryAdmin;
+import com.guojunjie.springbootblog.service.dto.BlogListQuery;
+import com.guojunjie.springbootblog.service.dto.BlogListQueryAdmin;
 import com.guojunjie.springbootblog.entity.*;
 import com.guojunjie.springbootblog.service.dto.*;
+import org.springframework.data.redis.core.ZSetOperations;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author guojunjie
  */
 public interface BlogService {
 
-    // 侠客行Admin后台接口
+    // 青衫仗剑Admin后台接口
     /**
      * 返回符合查询条件的文章某页的记录和所有符合条件的记录数量
      * @param query 查询条件
@@ -82,7 +84,7 @@ public interface BlogService {
     int getBlogCount();
 
 
-    // 纵江湖前台独享的接口
+    // 青衫仗剑前台独享的接口
     /**
      * 获取博客列表
      * @param blogListQuery
@@ -104,4 +106,51 @@ public interface BlogService {
      * @return 返回搜索结果Map
      */
     HashMap<String, Object> searchBlogByKeywords(String keyWords, int page);
+
+    // 以下均是不得不暴露出来的服务，本意是想都private的
+
+    /**
+     * 周期的检查状态为'deleted'的博客是否需要被真正删除
+     */
+    void checkBlogScheduled();
+
+    /**
+     * 每月1号重置推荐文章列表
+     */
+    void resetRecommendScheduled();
+
+    /**
+     * 将所有已发表的文章同步到Redis的有序集合中，分数都为1，初始化时会调用
+     */
+    void setRecommend();
+
+    /**
+     * 获取推荐文章数，Redis中的zset键值对，key为:recommendList
+     * @return 推荐
+     */
+    Set<ZSetOperations.TypedTuple<String>> getRecommendList();
+
+    /**
+     * 点击文章详情后，异步增加Redis的Zset中文章的分数
+     * @param blog
+     */
+    void incrRecommendScore(Blog blog);
+
+    /**
+     * 修改状态为'published'则会添加recommendZset中的member
+     * @param blogId
+     */
+    void addRecommendMember(int blogId);
+
+    /**
+     * 修改状态为非'published'，则异步移出recommendZset中的member
+     * @param blogId
+     */
+    void removeRecommendMember(int blogId);
+
+    /**
+     * 异步修改zset中的member名
+     * @param blogNew
+     */
+    void updateRecommendTitle(Blog blogNew);
 }

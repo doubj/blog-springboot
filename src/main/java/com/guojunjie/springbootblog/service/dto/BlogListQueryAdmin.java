@@ -1,4 +1,4 @@
-package com.guojunjie.springbootblog.common;
+package com.guojunjie.springbootblog.service.dto;
 
 import lombok.Data;
 import lombok.ToString;
@@ -9,7 +9,6 @@ import lombok.ToString;
  * TODO
  */
 @Data
-@ToString
 public class BlogListQueryAdmin {
     private int page;
     private int limit;

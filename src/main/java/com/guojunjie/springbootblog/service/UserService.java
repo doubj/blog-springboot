@@ -1,6 +1,7 @@
 package com.guojunjie.springbootblog.service;
 
 import com.guojunjie.springbootblog.entity.User;
+import com.guojunjie.springbootblog.service.dto.UserPassDTO;
 
 
 /**
@@ -29,4 +30,18 @@ public interface UserService {
      * @return 只包含用户信息，不包含账户信息
      */
     User getUserInfo();
+
+    /**
+     * 更新用户个人信息
+     * @param user
+     */
+    void updateUser(User user);
+
+
+    /**
+     * 更新密码
+     * @param token
+     * @param userPassDTO
+     */
+    void updatePass(String token, UserPassDTO userPassDTO);
 }

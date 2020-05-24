@@ -25,10 +25,13 @@
     blog_content
   </sql>
 
-    <select id="getBlogList" resultMap="ResultMapWithBLOBs">
+    <select id="getBlogList" resultMap="BaseResultMap" parameterType="java.lang.Boolean">
         select
         <include refid="Base_Column_List"/>
         from tb_blog
+        <if test="isPublished">
+            where blog_status = 'published'
+        </if>
     </select>
 
     <select id="getBlogCountByCategoryId" parameterType="map" resultType="int">
@@ -38,9 +41,10 @@
     </select>
 
     <update id="setStatus" parameterType="map">
-    update tb_blog
-    set blog_status = #{status} where blog_id = #{blogId}
-  </update>
+        update tb_blog
+        set blog_status = #{status},update_time = NOW()
+        where blog_id = #{blogId}
+    </update>
 
     <select id="getTotalCount" resultType="java.lang.Integer">
     select count(0)
@@ -81,11 +85,10 @@
         from tb_blog
         where blog_id = #{blogId,jdbcType=INTEGER}
     </select>
-    <update id="deleteBlogById" parameterType="java.lang.Integer">
-    update tb_blog
-    set blog_status = 'deleted'
+    <delete id="deleteBlogById" parameterType="java.lang.Integer">
+    delete from tb_blog
     where blog_id = #{blogId,jdbcType=INTEGER}
-  </update>
+  </delete>
     <insert id="addBlog" useGeneratedKeys="true" keyProperty="blogId" keyColumn="blog_id"
             parameterType="com.guojunjie.springbootblog.entity.Blog">
         insert into tb_blog
@@ -113,15 +116,6 @@
             </if>
             <if test="blogStatus != null">
                 blog_status,
-            </if>
-            <if test="blogVisits != null">
-                blog_visits,
-            </if>
-            <if test="createTime != null">
-                create_time,
-            </if>
-            <if test="updateTime != null">
-                update_time,
             </if>
             <if test="blogContent != null">
                 blog_content,
@@ -152,20 +146,16 @@
             <if test="blogStatus != null">
                 #{blogStatus,jdbcType=TINYINT},
             </if>
-            <if test="blogVisits != null">
-                #{blogVisits,jdbcType=BIGINT},
-            </if>
-            <if test="createTime != null">
-                #{createTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="updateTime != null">
-                #{updateTime,jdbcType=TIMESTAMP},
-            </if>
             <if test="blogContent != null">
                 #{blogContent,jdbcType=LONGVARCHAR},
             </if>
         </trim>
     </insert>
+    <update id="addVisits">
+        update tb_blog
+        set `blog_visits` = #{visits}
+        where blog_id = #{blogId}
+    </update>
     <update id="updateBlog" parameterType="com.guojunjie.springbootblog.entity.Blog">
         update tb_blog
         <set>
@@ -190,14 +180,8 @@
             <if test="blogStatus != null">
                 blog_status = #{blogStatus,jdbcType=TINYINT},
             </if>
-            <if test="blogVisits != null">
-                blog_visits = #{blogVisits,jdbcType=BIGINT},
-            </if>
-            <if test="createTime != null">
-                create_time = #{createTime,jdbcType=TIMESTAMP},
-            </if>
             <if test="updateTime != null">
-                update_time = #{updateTime,jdbcType=TIMESTAMP},
+                update_time = NOW(),
             </if>
             <if test="blogContent != null">
                 blog_content = #{blogContent,jdbcType=LONGVARCHAR},
@@ -205,8 +189,13 @@
         </set>
         where blog_id = #{blogId,jdbcType=INTEGER}
     </update>
+    <update id="incrVisits">
+        update tb_blog
+        set blog_visits = blog_visits + #{incr}
+        where blog_id = #{blogId}
+    </update>
     <select id="getBlogByQueryAdmin" resultMap="BaseResultMap"
-            parameterType="com.guojunjie.springbootblog.common.BlogListQueryAdmin">
+            parameterType="com.guojunjie.springbootblog.service.dto.BlogListQueryAdmin">
         <bind name="start" value="(page - 1) * limit"/>
         select
         <include refid="Base_Column_List"/>
@@ -270,5 +259,12 @@
         </if>
         order by create_time desc
         limit #{start},#{limit}
+    </select>
+    <select id="getNeedDeletedBlogList" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_blog
+        where blog_status = 'deleted'
+        and update_time &lt; #{expireTime}
     </select>
 </mapper>

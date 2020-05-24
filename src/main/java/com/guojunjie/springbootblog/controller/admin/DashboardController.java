@@ -3,6 +3,8 @@ package com.guojunjie.springbootblog.controller.admin;
 import com.guojunjie.springbootblog.common.Result;
 import com.guojunjie.springbootblog.common.ResultGenerator;
 import com.guojunjie.springbootblog.service.BlogService;
+import com.guojunjie.springbootblog.service.CommentService;
+import com.guojunjie.springbootblog.service.LogService;
 import com.guojunjie.springbootblog.service.dto.BlogWithCategoryDTO;
 import com.guojunjie.springbootblog.service.dto.BlogWithMonthDTO;
 import com.guojunjie.springbootblog.service.dto.BlogWithTagDTO;
@@ -25,6 +27,11 @@ public class DashboardController {
     @Resource
     BlogService blogService;
 
+    @Resource
+    LogService logService;
+
+    @Resource
+    CommentService commentService;
     @GetMapping("/visits")
     @ResponseBody
     public Result getTotalVisits() {
@@ -58,5 +65,19 @@ public class DashboardController {
     public Result getCategoryAndCount() {
         List<BlogWithCategoryDTO> blogCategoryVos = blogService.getCategoryAndCount();
         return ResultGenerator.genSuccessResult(blogCategoryVos);
+    }
+
+    @GetMapping("/message")
+    @ResponseBody
+    public Result getCommentCount() {
+        int res = commentService.getCommentCount();
+        return ResultGenerator.genSuccessResult(res);
+    }
+
+    @GetMapping("/log")
+    @ResponseBody
+    public Result getLogCount() {
+        int res = logService.getLogCount();
+        return ResultGenerator.genSuccessResult(res);
     }
 }

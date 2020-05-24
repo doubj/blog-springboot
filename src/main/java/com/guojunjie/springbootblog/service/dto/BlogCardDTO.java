@@ -12,22 +12,14 @@ import java.util.Date;
  * TODO BlogCard
  */
 @Data
-@ToString
 public class BlogCardDTO {
     private Integer blogId;
-
     private String blogTitle;
-
     private String blogCoverImage;
-
     private Integer blogCategoryId;
-
     private String blogCategoryName;
-
     private String blogSummary;
-
     private String blogTags;
-
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date createTime;
 }

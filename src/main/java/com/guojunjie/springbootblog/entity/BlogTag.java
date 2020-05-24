@@ -10,6 +10,5 @@ import lombok.ToString;
 @ToString
 public class BlogTag {
     private Integer tagId;
-
     private String tagName;
 }
