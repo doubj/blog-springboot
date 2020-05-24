@@ -110,7 +110,7 @@ public interface BlogMapper {
     int getTotalVisits();
 
     /**
-     * todo:修改删除为真正的删除，周期任务：每XXX天凌晨检查状态为deleted的博客是否超过xx天，若是就自动删除
+     * 删除博客
      * @param blogId
      * @return
      */
