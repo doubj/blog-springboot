@@ -3,6 +3,7 @@ package com.guojunjie.springbootblog.service;
 import com.guojunjie.springbootblog.entity.Comment;
 import com.guojunjie.springbootblog.service.dto.CommentQuery;
 
+import java.util.List;
 import java.util.Map;
 
 /**

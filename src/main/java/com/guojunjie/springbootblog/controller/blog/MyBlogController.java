@@ -94,8 +94,9 @@ public class MyBlogController implements InitializingBean {
     @GetMapping("/recommend")
     @ResponseBody
     public Result getRecommendList(){
+        final int recommendSize = 8;
         Set<ZSetOperations.TypedTuple<String>> set = blogService.getRecommendList();
-        return ResultGenerator.genSuccessResult(set);
+        return ResultGenerator.genSuccessResult(set.stream().limit(recommendSize));
     }
 
     @PostMapping("/comment")

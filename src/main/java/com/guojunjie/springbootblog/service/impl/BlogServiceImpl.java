@@ -452,8 +452,9 @@ public class BlogServiceImpl implements BlogService {
         List<BlogWithMonthDTO> res = new ArrayList<>();
         if (flag) {
             for (int i = bMonth; i <= eMonth; i++) {
-                BlogWithMonthDTO blogWithMonthDTO = new BlogWithMonthDTO();
-                blogWithMonthDTO.setMonth(Month.getName(i));
+                BlogWithMonthDTO blogWithMonthDTO = new BlogWithMonthDTO(Month.getName(i), 0);
+//                blogWithMonthDTO.setMonth(Month.getName(i));
+//                blogWithMonthDTO.setCount(0);
                 res.add(blogWithMonthDTO);
             }
         } else {
@@ -463,7 +464,6 @@ public class BlogServiceImpl implements BlogService {
             }
             for (int i = 1; i <= eMonth; i++) {
                 BlogWithMonthDTO blogWithMonthDTO = new BlogWithMonthDTO(Month.getName(i), 0);
-                blogWithMonthDTO.setMonth(Month.getName(i));
                 res.add(blogWithMonthDTO);
             }
         }

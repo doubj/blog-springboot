@@ -132,6 +132,11 @@
             <artifactId>aspectjweaver</artifactId>
             <version>1.9.4</version>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13</version>
+        </dependency>
         <!-- 腾讯云 -->
 <!--        <dependency>-->
 <!--            <groupId>com.qcloud</groupId>-->

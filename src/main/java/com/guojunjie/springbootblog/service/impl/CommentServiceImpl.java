@@ -8,8 +8,12 @@ import com.guojunjie.springbootblog.service.dto.CommentQuery;
 import com.guojunjie.springbootblog.service.mapper.CommentItemMapper;
 import com.guojunjie.springbootblog.service.mapper.CommentSubItemMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.ListOperations;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +30,11 @@ public class CommentServiceImpl implements CommentService {
     CommentItemMapper commentItemMapper;
     @Autowired
     CommentSubItemMapper commentSubItemMapper;
+
     @Override
     public void addComment(Comment comment) {
-        commentMapper.addComment(comment);
+        final String COMMENT_LIST = "commentList";
+        final String MESSAGE_LIST = "messageList";
     }
 
     @Override
@@ -74,4 +80,5 @@ public class CommentServiceImpl implements CommentService {
 
         return commentMapper.getNotBeRepliedAdmin();
     }
+
 }
