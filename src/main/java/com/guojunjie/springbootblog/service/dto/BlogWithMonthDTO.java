@@ -2,6 +2,7 @@ package com.guojunjie.springbootblog.service.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BlogWithMonthDTO {
-    private String month;
+public class BlogWithMonthDTO{
+    private Integer month;
     private Integer count;
 }

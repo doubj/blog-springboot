@@ -267,4 +267,17 @@
         where blog_status = 'deleted'
         and update_time &lt; #{expireTime}
     </select>
+    <select id="getBlogCountBySixMonth" resultType="com.guojunjie.springbootblog.service.dto.BlogWithMonthDTO">
+        SELECT MONTH(create_time) AS `month`,
+        count(0) AS `count`
+        FROM
+        tb_blog
+        WHERE
+        create_time &gt;= #{startDate}
+        AND create_time &lt;= NOW()
+        GROUP BY
+        MONTH (create_time)
+        order by
+        create_time
+    </select>
 </mapper>

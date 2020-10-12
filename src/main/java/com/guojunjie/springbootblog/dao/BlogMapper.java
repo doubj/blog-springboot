@@ -3,10 +3,13 @@ package com.guojunjie.springbootblog.dao;
 import com.guojunjie.springbootblog.service.dto.BlogListQuery;
 import com.guojunjie.springbootblog.service.dto.BlogListQueryAdmin;
 import com.guojunjie.springbootblog.entity.Blog;
+import com.guojunjie.springbootblog.service.dto.BlogWithMonthDTO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author guojunjie
@@ -131,4 +134,6 @@ public interface BlogMapper {
     void incrVisits(@Param("blogId")int blogId, @Param("incr")int incr);
 
     void addVisits(@Param("blogId") int blogId,@Param("visits")Long visits);
+
+    List<BlogWithMonthDTO> getBlogCountBySixMonth(Date startDate);
 }

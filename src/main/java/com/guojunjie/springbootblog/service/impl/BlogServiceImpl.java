@@ -37,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -316,12 +317,10 @@ public class BlogServiceImpl implements BlogService {
     }
 
     private String generateMember(Blog blog){
-        final String END_MARK = "---doubj";
-        StringBuffer sb = new StringBuffer();
-        sb.append(blog.getBlogTitle());
-        sb.append(END_MARK);
-        sb.append(blog.getBlogId());
-        return sb.toString();
+        final String separateMark = "-doubj-";
+        // `${id}-doubj-${title}-doubj-${coverImage}`
+        return blog.getBlogId() + separateMark + blog.getBlogTitle() +
+                separateMark + blog.getBlogCoverImage();
     }
 
     @Override
@@ -427,71 +426,31 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public List<BlogWithMonthDTO> getBlogCountInRecentlySixMonth() {
-        //获取博客数
-        List<Blog> blogList = blogMapper.getBlogList(false);
-        Calendar cal = Calendar.getInstance();
-        //获取近6个月的博客的创建数
-        //近6个月区间
-        //分析：1. 如果当前月份大于等于6，那年份就一样，月份就是[month - 5, month]
-        //2. 小于6，年份是[year - 1, year],月份是[7 + month, month]
-
-        //flag为true表示month >= 6
-        boolean flag = true;
-        //当前月份
-        int eMonth = cal.get(Calendar.MONTH) + 1;
-        //当前年份
-        int eYear = cal.get(Calendar.YEAR);
-        int bMonth = eMonth - 5;
-        int bYear = eYear;
-        //找到月份范围区间
-        if (eMonth < 6) {
-            bMonth = 7 + eMonth;
-            bYear = eYear - 1;
-            flag = false;
+        // 1. 计算起始时间
+        Date now = new Date(System.currentTimeMillis());
+        Date startDate = null;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+        int currentYear = Integer.parseInt(sdf.format(now).split("-")[0]);
+        int currentMonth = Integer.parseInt(sdf.format(now).split("-")[1]);
+        int startYear = currentMonth - 6 >= 0 ? currentYear : currentYear - 1;
+        int startMonth = currentMonth - 6 >= 0 ? (currentMonth - 5) : (currentMonth + 7);
+        try {
+            startDate = sdf.parse( startYear + "-" + startMonth + "-1");
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
-        List<BlogWithMonthDTO> res = new ArrayList<>();
-        if (flag) {
-            for (int i = bMonth; i <= eMonth; i++) {
-                BlogWithMonthDTO blogWithMonthDTO = new BlogWithMonthDTO(Month.getName(i), 0);
-//                blogWithMonthDTO.setMonth(Month.getName(i));
-//                blogWithMonthDTO.setCount(0);
-                res.add(blogWithMonthDTO);
+        // 2. 获取存在的对应月份的文章数数量
+        List<BlogWithMonthDTO> res = blogMapper.getBlogCountBySixMonth(startDate);
+        // 3. 补全空缺月份数量为0
+        final int blogWithMonthCount = 6;
+        int idx = 0;
+        int lastMonth = startMonth - 1;
+        while (res.size() < blogWithMonthCount) {
+            if (idx == res.size() || res.get(idx).getMonth() != lastMonth + 1) {
+                res.add(idx, new BlogWithMonthDTO(lastMonth + 1, 0));
             }
-        } else {
-            for (int i = bMonth; i <= 12; i++) {
-                BlogWithMonthDTO blogWithMonthDTO = new BlogWithMonthDTO(Month.getName(i), 0);
-                res.add(blogWithMonthDTO);
-            }
-            for (int i = 1; i <= eMonth; i++) {
-                BlogWithMonthDTO blogWithMonthDTO = new BlogWithMonthDTO(Month.getName(i), 0);
-                res.add(blogWithMonthDTO);
-            }
-        }
-        for (Blog blog : blogList) {
-            cal.setTime(blog.getCreateTime());
-            int year = cal.get(Calendar.YEAR);
-            int month = cal.get(Calendar.MONTH) + 1;
-
-            if (eYear == year || bYear == year) {
-                if (flag) {
-                    if (month >= bMonth && month <= eMonth) {
-                        //命中
-                        for (BlogWithMonthDTO blogWithMonthDTO : res) {
-                            if (blogWithMonthDTO.getMonth().equals(Month.getName(month))) {
-                                blogWithMonthDTO.setCount(blogWithMonthDTO.getCount() + 1);
-                            }
-                        }
-                    }
-                } else {
-                    if (month >= bMonth || month <= eMonth) {
-                        for (BlogWithMonthDTO blogWithMonthDTO : res) {
-                            if (blogWithMonthDTO.getMonth().equals(Month.getName(month))) {
-                                blogWithMonthDTO.setCount(blogWithMonthDTO.getCount() + 1);
-                            }
-                        }
-                    }
-                }
-            }
+            idx++;
+            lastMonth++;
         }
         return res;
     }
