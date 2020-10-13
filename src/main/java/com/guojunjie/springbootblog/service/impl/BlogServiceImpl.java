@@ -379,44 +379,12 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public List<BlogWithCategoryDTO> getCategoryAndCount() {
-        List<BlogCategory> blogCategories = blogCategoryService.getCategories();
-        List<BlogWithCategoryDTO> res = new ArrayList<>();
-        for (BlogCategory blogCategory : blogCategories) {
-            BlogWithCategoryDTO blogWithCategoryDTO = new BlogWithCategoryDTO();
-            blogWithCategoryDTO.setCategoryId(blogCategory.getCategoryId());
-            blogWithCategoryDTO.setCategoryName(blogCategory.getCategoryName());
-
-            int blogCount = blogMapper.getBlogCountByCategoryId(blogCategory.getCategoryId());
-            blogWithCategoryDTO.setBlogCount(blogCount);
-            res.add(blogWithCategoryDTO);
-        }
-        if (res.size() > 0) {
-            return res;
-        }
-        return null;
+        return blogMapper.getCategoryAndCount();
     }
 
     @Override
     public List<BlogWithTagDTO> getTagAndCount() {
-        // 1. 获取所有标签
-        List<BlogTag> blogTags = blogTagService.getTags();
-        List<BlogWithTagDTO> res = new ArrayList<>();
-
-        for (BlogTag blogTag : blogTags) {
-            // 2. 遍历所有标签，找到每个标签在关系表中的个数
-            BlogWithTagDTO blogWithTagDTO = new BlogWithTagDTO();
-
-            blogWithTagDTO.setTagId(blogTag.getTagId());
-            blogWithTagDTO.setTagName(blogTag.getTagName());
-
-            int blogCount = blogTagRelationService.getBlogTagRelationCountByTagId(blogTag.getTagId());
-            blogWithTagDTO.setBlogCount(blogCount);
-            res.add(blogWithTagDTO);
-        }
-        if (res.size() > 0) {
-            return res;
-        }
-        return null;
+        return blogTagRelationService.getTagAndCount();
     }
 
     @Override

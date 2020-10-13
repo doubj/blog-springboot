@@ -22,7 +22,7 @@
     from tb_blog_tag_relation
     where tag_id = #{tagId}
   </select>
-  <delete id="deleteBlogTagRelationByTagIdAndBlogId" parameterType="java.lang.Integer">
+    <delete id="deleteBlogTagRelationByTagIdAndBlogId" parameterType="java.lang.Integer">
     delete from tb_blog_tag_relation
     where tag_id = #{tagId}
     and blog_id = #{blogId}
@@ -52,4 +52,7 @@
       </if>
     </trim>
   </insert>
+  <select id="getTagAndCount" resultType="com.guojunjie.springbootblog.service.dto.BlogWithTagDTO">
+    select tag_name as `tagName`,count(re.relation_id) as `blogCount` from tb_blog_tag_relation re left join tb_blog_tag t on re.tag_id = t.tag_id group by tag_name
+  </select>
 </mapper>

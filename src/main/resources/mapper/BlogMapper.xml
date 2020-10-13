@@ -280,4 +280,10 @@
         order by
         create_time
     </select>
+    <select id="getCategoryAndCount" resultType="com.guojunjie.springbootblog.service.dto.BlogWithCategoryDTO">
+        select blog_category_name as `categoryName`,count(0) as `blogCount`
+        from
+        tb_blog
+        group by blog_category_name
+    </select>
 </mapper>

@@ -1,6 +1,7 @@
 package com.guojunjie.springbootblog.service;
 
 import com.guojunjie.springbootblog.entity.BlogTagRelation;
+import com.guojunjie.springbootblog.service.dto.BlogWithTagDTO;
 
 import java.util.List;
 
@@ -32,11 +33,10 @@ public interface BlogTagRelationService {
      */
     void deleteBlogTagRelationByTagIdAndBlogId(int tagId, int blogId);
 
+
     /**
-     * 获取标签对应的文章数
-     *
-     * @param tagId 标签ID
-     * @return 文章数
+     * 所有标签及其所关联的文章数
+     * @return
      */
-    int getBlogTagRelationCountByTagId(int tagId);
+    List<BlogWithTagDTO> getTagAndCount();
 }

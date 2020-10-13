@@ -2,6 +2,7 @@ package com.guojunjie.springbootblog.dao;
 
 import com.guojunjie.springbootblog.entity.Blog;
 import com.guojunjie.springbootblog.entity.BlogTagRelation;
+import com.guojunjie.springbootblog.service.dto.BlogWithTagDTO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
 
@@ -41,4 +42,6 @@ public interface BlogTagRelationMapper {
      * @return 返回影响的行数
      */
     int addBlogTagRelation(BlogTagRelation record);
+
+    List<BlogWithTagDTO> getTagAndCount();
 }

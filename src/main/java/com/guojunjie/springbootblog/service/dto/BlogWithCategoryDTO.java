@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BlogWithCategoryDTO {
-    private Integer categoryId;
     private String categoryName;
     private Integer blogCount;
 }

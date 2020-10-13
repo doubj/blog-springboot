@@ -3,6 +3,7 @@ package com.guojunjie.springbootblog.service.impl;
 import com.guojunjie.springbootblog.dao.BlogTagRelationMapper;
 import com.guojunjie.springbootblog.entity.BlogTagRelation;
 import com.guojunjie.springbootblog.service.BlogTagRelationService;
+import com.guojunjie.springbootblog.service.dto.BlogWithTagDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +35,7 @@ public class BlogTagRelationServiceImpl implements BlogTagRelationService {
     }
 
     @Override
-    public int getBlogTagRelationCountByTagId(int tagId) {
-        return blogTagRelationMapper.getBlogTagRelationCountByTagId(tagId);
+    public List<BlogWithTagDTO> getTagAndCount() {
+        return blogTagRelationMapper.getTagAndCount();
     }
 }
