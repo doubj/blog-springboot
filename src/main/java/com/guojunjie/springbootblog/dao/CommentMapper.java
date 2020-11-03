@@ -23,21 +23,11 @@ public interface CommentMapper {
     int addComment(Comment comment);
 
     /**
-     * 分页获取评论列表
-     * @param page
-     * @param limit
-     * @param type
-     * @param relationId
+     * 获取评论列表
+     * @param commentQuery
      * @return
      */
-    List<Comment> getCommentList(@Param("page") int page, @Param("limit") int limit,
-                                 @Param("type") String type, @Param("relationId") int relationId);
-
-    /**
-     * 获取留言表记录数（分页用）
-     * @return
-     */
-    int getParentMessageTotalCount();
+    List<Comment> getCommentsByQuery(CommentQuery commentQuery);
 
     /**
      * 获取所有子评论
@@ -45,20 +35,6 @@ public interface CommentMapper {
      * @return
      */
     List<Comment> getChildrenList(Integer commentId);
-
-    /**
-     * 根据查询条件获取评论列表
-     * @param commentQuery
-     * @return
-     */
-    List<Comment> getCommentByQuery(CommentQuery commentQuery);
-
-    /**
-     * 获取记录数，分页用
-     * @param commentQuery
-     * @return
-     */
-    int getMessageTotalCount(CommentQuery commentQuery);
 
 
     /**
@@ -72,4 +48,8 @@ public interface CommentMapper {
      * @return
      */
     int getNotBeRepliedAdmin();
+
+    void setCheckedByBlogIds(@Param("ids") List<Integer> ids);
+
+    int getBlogCommentCount(int blogId);
 }

@@ -17,28 +17,13 @@ public interface CommentService {
      */
     void addComment(Comment comment);
 
-    /**
-     * 分页获取评论
-     * @param page
-     * @param limit
-     * @param type
-     * @param relationId
-     * @return
-     */
-    Map<String, Object> getCommentByPage(int page, int limit, String type, int relationId);
-
-    /**
-     * 获取留言总数
-     * @return
-     */
-    int getMessageCount();
 
     /**
      * 后台获取留言列表
      * @param commentQuery
      * @return
      */
-    Map<String, Object> getCommentByQuery(CommentQuery commentQuery);
+    Map<String, Object> getCommentByQuery(CommentQuery commentQuery, Boolean reset);
 
     /**
      * 删除评论
@@ -51,4 +36,6 @@ public interface CommentService {
      * @return
      */
     int getCommentCount();
+
+    void modifyCheckedState(List<Comment> comments);
 }

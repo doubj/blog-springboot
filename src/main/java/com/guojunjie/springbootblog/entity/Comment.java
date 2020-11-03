@@ -22,10 +22,10 @@ public class Comment {
     private String replyNickName;
     private boolean replyAdmin;
     private boolean beRepliedAdmin;
-    private String type;
-    private Integer relationId;
+    private Integer blogId;
     private Integer pid;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date createTime;
-    private List<CommentSubItemDTO> children;
+    private List<Comment> children;
+    private boolean checked;
 }

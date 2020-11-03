@@ -7,6 +7,7 @@ import com.guojunjie.springbootblog.entity.*;
 import com.guojunjie.springbootblog.service.*;
 import com.guojunjie.springbootblog.service.dto.BlogCardDTO;
 import com.guojunjie.springbootblog.service.dto.BlogDetailDTO;
+import com.guojunjie.springbootblog.service.dto.CommentQuery;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.web.bind.annotation.*;
@@ -99,20 +100,10 @@ public class MyBlogController implements InitializingBean {
         return ResultGenerator.genSuccessResult(set.stream().limit(recommendSize));
     }
 
-    @PostMapping("/comment")
+    @PostMapping("/comment/query")
     @ResponseBody
-    public Result addComment(@RequestBody Comment comment){
-        commentService.addComment(comment);
-        return ResultGenerator.genSuccessResult();
-    }
-
-    @GetMapping("/comment")
-    @ResponseBody
-    public Result getCommentByPage(@RequestParam("page")int page,
-    @RequestParam("type") String type,
-    @RequestParam(value = "relationId",required = false,defaultValue = "0") int relationId){
-        final int limit = 6;
-        Map<String, Object> map = commentService.getCommentByPage(page,limit,type,relationId);
+    public Result getCommentByQuery(@RequestBody CommentQuery commentQuery){
+        Map<String, Object> map = commentService.getCommentByQuery(commentQuery, false);
         return ResultGenerator.genSuccessResult(map);
     }
 
@@ -123,5 +114,12 @@ public class MyBlogController implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         blogService.setRecommend();
+    }
+
+    @PostMapping("/comment")
+    @ResponseBody
+    public Result addComment(@RequestBody Comment comment){
+        commentService.addComment(comment);
+        return ResultGenerator.genSuccessResult(comment);
     }
 }

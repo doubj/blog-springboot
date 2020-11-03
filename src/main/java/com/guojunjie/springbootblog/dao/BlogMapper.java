@@ -137,4 +137,6 @@ public interface BlogMapper {
 
     List<BlogWithCategoryDTO> getCategoryAndCount();
 
+    void incrNewCommentCount(@Param("blogId") Integer blogId, @Param("count") Integer count);
+
 }

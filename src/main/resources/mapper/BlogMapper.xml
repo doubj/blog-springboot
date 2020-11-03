@@ -13,13 +13,14 @@
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
         <result column="blog_summary" jdbcType="VARCHAR" property="blogSummary"/>
+        <result column="new_comment_count" jdbcType="INTEGER" property="newCommentCount"/>
     </resultMap>
     <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.guojunjie.springbootblog.entity.Blog">
         <result column="blog_content" jdbcType="LONGVARCHAR" property="blogContent"/>
     </resultMap>
     <sql id="Base_Column_List">
     blog_id, blog_title, blog_cover_image, blog_category_id, blog_category_name, blog_tags, 
-    blog_status, blog_visits, create_time, update_time, blog_summary
+    blog_status, blog_visits, create_time, update_time, blog_summary, new_comment_count
   </sql>
     <sql id="Blob_Column_List">
     blog_content
@@ -192,6 +193,11 @@
     <update id="incrVisits">
         update tb_blog
         set blog_visits = blog_visits + #{incr}
+        where blog_id = #{blogId}
+    </update>
+    <update id="incrNewCommentCount">
+        update tb_blog
+        set new_comment_count = new_comment_count + #{count}
         where blog_id = #{blogId}
     </update>
     <select id="getBlogByQueryAdmin" resultMap="BaseResultMap"

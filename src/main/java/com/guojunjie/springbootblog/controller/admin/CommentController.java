@@ -23,16 +23,17 @@ public class CommentController {
     @PostMapping("/comment/query")
     @ResponseBody
     public Result getCommentByQuery(@RequestBody CommentQuery commentQuery){
-        Map<String, Object> map = commentService.getCommentByQuery(commentQuery);
+        Map<String, Object> map = commentService.getCommentByQuery(commentQuery, true);
         return ResultGenerator.genSuccessResult(map);
     }
+
 
     @PostMapping("/comment")
     @ResponseBody
     public Result addCommentAdmin(@RequestBody Comment comment){
         comment.setNickName("doubj");
         commentService.addComment(comment);
-        return ResultGenerator.genSuccessResult();
+        return ResultGenerator.genSuccessResult(comment);
     }
 
     @DeleteMapping("/comment/{id}")
@@ -41,4 +42,11 @@ public class CommentController {
         commentService.deleteComment(id);
         return ResultGenerator.genSuccessResult();
     }
+
+//    @PatchMapping("/comment/{blogId}")
+//    @ResponseBody
+//    public Result modifyCheckedState(@PathVariable int blogId) {
+//        commentService.modifyCheckedState(blogId);
+//        return ResultGenerator.genSuccessResult();
+//    }
 }

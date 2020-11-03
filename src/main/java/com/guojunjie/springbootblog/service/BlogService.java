@@ -153,4 +153,6 @@ public interface BlogService {
      * @param blogNew
      */
     void updateRecommendTitle(Blog blogNew);
+
+    void incrNewCommentCount(Integer blogId, Integer count);
 }

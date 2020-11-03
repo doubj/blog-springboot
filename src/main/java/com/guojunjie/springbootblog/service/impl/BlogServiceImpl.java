@@ -366,6 +366,11 @@ public class BlogServiceImpl implements BlogService {
         }
     }
 
+    @Override
+    public void incrNewCommentCount(Integer blogId, Integer count) {
+        blogMapper.incrNewCommentCount(blogId, count);
+    }
+
     /**
      * 每月1号重置推荐文章
      */

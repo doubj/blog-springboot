@@ -39,4 +39,6 @@ public class Blog {
     private Date updateTime;
 
     private String blogContent;
+
+    private Integer newCommentCount;
 }

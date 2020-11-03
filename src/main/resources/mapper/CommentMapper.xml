@@ -9,17 +9,17 @@
         <result column="reply_nick_name" jdbcType="VARCHAR" property="replyNickName"/>
         <result column="reply_admin" jdbcType="BOOLEAN" property="replyAdmin"/>
         <result column="be_replied_admin" jdbcType="BOOLEAN" property="beRepliedAdmin"/>
-        <result column="type" jdbcType="VARCHAR" property="type"/>
-        <result column="relation_id" jdbcType="INTEGER" property="relationId"/>
+        <result column="blog_id" jdbcType="INTEGER" property="blogId"/>
         <result column="pid" jdbcType="INTEGER" property="pid"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="checked" jdbcType="BOOLEAN" property="checked" />
     </resultMap>
     <sql id="Base_Column_List">
-    comment_id, content,nick_name,reply_nick_name,reply_admin,be_replied_admin,pid, create_time
+    comment_id, content,nick_name,reply_nick_name,reply_admin,be_replied_admin,pid, create_time, checked, blog_id
   </sql>
     <insert id="addComment" useGeneratedKeys="true" keyProperty="commentId" keyColumn="comment_id"
             parameterType="com.guojunjie.springbootblog.entity.Comment">
-        insert into tb_Comment
+        insert into tb_comment
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="content != null">
                 content,
@@ -39,14 +39,14 @@
             <if test="beRepliedAdmin != null">
                 be_replied_admin,
             </if>
-            <if test="type != null">
-                `type`,
-            </if>
-            <if test="relationId != null">
-                relation_id,
+            <if test="blogId != null">
+                blog_id,
             </if>
             <if test="pid != null">
                 pid,
+            </if>
+            <if test="checked != null">
+                checked,
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -68,23 +68,32 @@
             <if test="beRepliedAdmin != null">
                 #{beRepliedAdmin},
             </if>
-            <if test="type != null">
-                #{type},
-            </if>
-            <if test="relationId != null">
-                #{relationId},
+            <if test="blogId != null">
+                #{blogId},
             </if>
             <if test="pid != null">
                 #{pid},
             </if>
+            <if test="checked != null">
+                #{checked},
+            </if>
         </trim>
   </insert>
+    <update id="setCheckedByBlogIds" parameterType="Integer">
+        update tb_comment
+        set checked = true
+        where comment_id in
+        <foreach item="id" index="index" collection="ids"
+                 open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
     <delete id="deleteCommentById" parameterType="Integer">
         delete from tb_comment
         where comment_id = #{id}
         or pid = #{id}
     </delete>
-    <select id="getCommentList" resultMap="BaseResultMap">
+    <select id="getCommentsByQuery" resultMap="BaseResultMap" parameterType="com.guojunjie.springbootblog.service.dto.CommentQuery">
         <bind name="start" value="(page - 1) * limit"/>
         select
         <include refid="Base_Column_List"/>
@@ -92,23 +101,9 @@
         tb_comment
         where
         pid = 0
-        <choose>
-            <when test="type == 'message'">
-                and `type` = 'message'
-            </when>
-            <otherwise>
-                and`type` = 'article'
-                and relation_id = #{relationId}
-            </otherwise>
-        </choose>
+        and blog_id = #{blogId}
         order by create_time desc
         limit #{start},#{limit}
-    </select>
-    <select id="getParentMessageTotalCount" resultType="java.lang.Integer">
-        select count(0)
-        from tb_comment
-        where
-        pid = 0 and `type` = 'message'
     </select>
     <select id="getChildrenList" resultMap="BaseResultMap">
         select
@@ -116,35 +111,16 @@
         from tb_comment
         where pid = #{commentId}
     </select>
-    <select id="getCommentByQuery" parameterType="com.guojunjie.springbootblog.service.dto.CommentQuery" resultMap="BaseResultMap">
-        <bind name="start" value="(page - 1) * limit"/>
-        select
-        <include refid="Base_Column_List"/>,pid,email,relation_id
-        from tb_comment
-        where `type` = #{type}
-        and reply_admin = 0
-        <if test="nickName != null">
-            <bind name="name" value="'%'+ nickName + '%'"/>
-            and nick_name like #{name}
-        </if>
-        order by create_time desc
-        limit #{start},#{limit}
-    </select>
-    <select id="getMessageTotalCount" parameterType="com.guojunjie.springbootblog.service.dto.CommentQuery" resultType="java.lang.Integer">
-        <bind name="start" value="(page - 1) * limit"/>
-        select count(0)
-        from tb_comment
-        where `type` = #{type}
-        and reply_admin = 0
-        <if test="nickName != null">
-            <bind name="name" value="'%'+ nickName + '%'"/>
-            and nick_name like #{name}
-        </if>
-    </select>
     <select id="getNotBeRepliedAdmin" resultType="java.lang.Integer">
         select count(0)
         from tb_comment
         where reply_admin = 0
+    </select>
+    <select id="getBlogCommentCount" resultType="java.lang.Integer">
+        select count(0)
+        from tb_comment
+        where blog_id = #{blogId}
+        and pid = 0
     </select>
 
 </mapper>

@@ -10,6 +10,5 @@ import lombok.Data;
 public class CommentQuery {
     private int page;
     private int limit;
-    private String type;
-    private String nickName;
+    private int blogId;
 }
